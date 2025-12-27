@@ -1,0 +1,686 @@
+[
+  {
+    "label": "Bellagio",
+    "value": "Bellagio"
+  },
+  {
+    "label": "ARIA Resort & Casino",
+    "value": "ARIA Resort & Casino"
+  },
+  {
+    "label": "Vdara Hotel & Spa",
+    "value": "Vdara Hotel & Spa"
+  },
+  {
+    "label": "Waldorf Astoria Las Vegas",
+    "value": "Waldorf Astoria Las Vegas"
+  },
+  {
+    "label": "The Cosmopolitan of Las Vegas",
+    "value": "The Cosmopolitan of Las Vegas"
+  },
+  {
+    "label": "MGM Grand Hotel & Casino",
+    "value": "MGM Grand Hotel & Casino"
+  },
+  {
+    "label": "The Signature at MGM Grand",
+    "value": "The Signature at MGM Grand"
+  },
+  {
+    "label": "New York-New York Hotel & Casino",
+    "value": "New York-New York Hotel & Casino"
+  },
+  {
+    "label": "Excalibur Hotel & Casino",
+    "value": "Excalibur Hotel & Casino"
+  },
+  {
+    "label": "Luxor Hotel & Casino",
+    "value": "Luxor Hotel & Casino"
+  },
+  {
+    "label": "Mandalay Bay Resort & Casino",
+    "value": "Mandalay Bay Resort & Casino"
+  },
+  {
+    "label": "Delano Las Vegas",
+    "value": "Delano Las Vegas"
+  },
+  {
+    "label": "Four Seasons Hotel Las Vegas",
+    "value": "Four Seasons Hotel Las Vegas"
+  },
+  {
+    "label": "Caesars Palace",
+    "value": "Caesars Palace"
+  },
+  {
+    "label": "Nobu Hotel at Caesars Palace",
+    "value": "Nobu Hotel at Caesars Palace"
+  },
+  {
+    "label": "The Cromwell Las Vegas",
+    "value": "The Cromwell Las Vegas"
+  },
+  {
+    "label": "The LINQ Hotel + Experience",
+    "value": "The LINQ Hotel + Experience"
+  },
+  {
+    "label": "Flamingo Las Vegas",
+    "value": "Flamingo Las Vegas"
+  },
+  {
+    "label": "Harrah’s Las Vegas Hotel & Casino",
+    "value": "Harrah’s Las Vegas Hotel & Casino"
+  },
+  {
+    "label": "Paris Las Vegas Hotel & Casino",
+    "value": "Paris Las Vegas Hotel & Casino"
+  },
+  {
+    "label": "Planet Hollywood Resort & Casino",
+    "value": "Planet Hollywood Resort & Casino"
+  },
+  {
+    "label": "Horseshoe Las Vegas (formerly Bally’s)",
+    "value": "Horseshoe Las Vegas (formerly Bally’s)"
+  },
+  {
+    "label": "The Venetian Resort Las Vegas",
+    "value": "The Venetian Resort Las Vegas"
+  },
+  {
+    "label": "The Palazzo at The Venetian",
+    "value": "The Palazzo at The Venetian"
+  },
+  {
+    "label": "Wynn Las Vegas",
+    "value": "Wynn Las Vegas"
+  },
+  {
+    "label": "Encore at Wynn Las Vegas",
+    "value": "Encore at Wynn Las Vegas"
+  },
+  {
+    "label": "Treasure Island – TI Hotel & Casino",
+    "value": "Treasure Island – TI Hotel & Casino"
+  },
+  {
+    "label": "The Mirage Hotel & Casino",
+    "value": "The Mirage Hotel & Casino"
+  },
+  {
+    "label": "SAHARA Las Vegas",
+    "value": "SAHARA Las Vegas"
+  },
+  {
+    "label": "The STRAT Hotel, Casino & Tower",
+    "value": "The STRAT Hotel, Casino & Tower"
+  },
+  {
+    "label": "Circus Circus Hotel, Casino & Theme Park",
+    "value": "Circus Circus Hotel, Casino & Theme Park"
+  },
+  {
+    "label": "Park MGM Las Vegas",
+    "value": "Park MGM Las Vegas"
+  },
+  {
+    "label": "Fontainebleau Las Vegas",
+    "value": "Fontainebleau Las Vegas"
+  },
+  {
+    "label": "Resorts World Las Vegas",
+    "value": "Resorts World Las Vegas"
+  },
+  {
+    "label": "Las Vegas Hilton at Resorts World",
+    "value": "Las Vegas Hilton at Resorts World"
+  },
+  {
+    "label": "Conrad Las Vegas at Resorts World",
+    "value": "Conrad Las Vegas at Resorts World"
+  },
+  {
+    "label": "Crockfords Las Vegas at Resorts World",
+    "value": "Crockfords Las Vegas at Resorts World"
+  },
+  {
+    "label": "Palms Casino Resort",
+    "value": "Palms Casino Resort"
+  },
+  {
+    "label": "Palms Place Hotel & Spa",
+    "value": "Palms Place Hotel & Spa"
+  },
+  {
+    "label": "The Orleans Hotel & Casino",
+    "value": "The Orleans Hotel & Casino"
+  },
+  {
+    "label": "Gold Coast Hotel & Casino",
+    "value": "Gold Coast Hotel & Casino"
+  },
+  {
+    "label": "Rio Hotel & Casino",
+    "value": "Rio Hotel & Casino"
+  },
+  {
+    "label": "Palace Station Hotel & Casino",
+    "value": "Palace Station Hotel & Casino"
+  },
+  {
+    "label": "Boulder Station Hotel & Casino",
+    "value": "Boulder Station Hotel & Casino"
+  },
+  {
+    "label": "Sunset Station Hotel & Casino",
+    "value": "Sunset Station Hotel & Casino"
+  },
+  {
+    "label": "Santa Fe Station Hotel & Casino",
+    "value": "Santa Fe Station Hotel & Casino"
+  },
+  {
+    "label": "Texas Station (Closed – excluded)",
+    "value": "Texas Station (Closed – excluded)"
+  },
+  {
+    "label": "Sam’s Town Hotel & Gambling Hall",
+    "value": "Sam’s Town Hotel & Gambling Hall"
+  },
+  {
+    "label": "Green Valley Ranch Resort Spa & Casino",
+    "value": "Green Valley Ranch Resort Spa & Casino"
+  },
+  {
+    "label": "Red Rock Casino Resort & Spa",
+    "value": "Red Rock Casino Resort & Spa"
+  },
+  {
+    "label": "Suncoast Hotel & Casino",
+    "value": "Suncoast Hotel & Casino"
+  },
+  {
+    "label": "Aliante Casino + Hotel + Spa",
+    "value": "Aliante Casino + Hotel + Spa"
+  },
+  {
+    "label": "South Point Hotel, Casino & Spa",
+    "value": "South Point Hotel, Casino & Spa"
+  },
+  {
+    "label": "Silverton Casino Lodge",
+    "value": "Silverton Casino Lodge"
+  },
+  {
+    "label": "M Resort Spa Casino",
+    "value": "M Resort Spa Casino"
+  },
+  {
+    "label": "JW Marriott Las Vegas Resort & Spa",
+    "value": "JW Marriott Las Vegas Resort & Spa"
+  },
+  {
+    "label": "Rampart Casino at the Resort at Summerlin",
+    "value": "Rampart Casino at the Resort at Summerlin"
+  },
+  {
+    "label": "Arizona Charlie’s Decatur",
+    "value": "Arizona Charlie’s Decatur"
+  },
+  {
+    "label": "Arizona Charlie’s Boulder",
+    "value": "Arizona Charlie’s Boulder"
+  },
+  {
+    "label": "Longhorn Casino & Hotel",
+    "value": "Longhorn Casino & Hotel"
+  },
+  {
+    "label": "Wildfire Casino & Hotel (Boulder)",
+    "value": "Wildfire Casino & Hotel (Boulder)"
+  },
+  {
+    "label": "Circa Resort & Casino – Adults Only",
+    "value": "Circa Resort & Casino – Adults Only"
+  },
+  {
+    "label": "Golden Nugget Las Vegas Hotel & Casino",
+    "value": "Golden Nugget Las Vegas Hotel & Casino"
+  },
+  {
+    "label": "Four Queens Hotel & Casino",
+    "value": "Four Queens Hotel & Casino"
+  },
+  {
+    "label": "the D Las Vegas",
+    "value": "the D Las Vegas"
+  },
+  {
+    "label": "Plaza Hotel & Casino",
+    "value": "Plaza Hotel & Casino"
+  },
+  {
+    "label": "Downtown Grand Hotel & Casino",
+    "value": "Downtown Grand Hotel & Casino"
+  },
+  {
+    "label": "El Cortez Hotel & Casino",
+    "value": "El Cortez Hotel & Casino"
+  },
+  {
+    "label": "Fremont Hotel & Casino",
+    "value": "Fremont Hotel & Casino"
+  },
+  {
+    "label": "California Hotel & Casino",
+    "value": "California Hotel & Casino"
+  },
+  {
+    "label": "Main Street Station Casino, Brewery & Hotel",
+    "value": "Main Street Station Casino, Brewery & Hotel"
+  },
+  {
+    "label": "Binion’s Gambling Hall & Hotel",
+    "value": "Binion’s Gambling Hall & Hotel"
+  },
+  {
+    "label": "Oasis at Gold Spike",
+    "value": "Oasis at Gold Spike"
+  },
+  {
+    "label": "Hotel Apache",
+    "value": "Hotel Apache"
+  },
+  {
+    "label": "The English Hotel, Las Vegas",
+    "value": "The English Hotel, Las Vegas"
+  },
+  {
+    "label": "Trump International Hotel Las Vegas",
+    "value": "Trump International Hotel Las Vegas"
+  },
+  {
+    "label": "The Platinum Hotel & Spa",
+    "value": "The Platinum Hotel & Spa"
+  },
+  {
+    "label": "Tuscany Suites & Casino",
+    "value": "Tuscany Suites & Casino"
+  },
+  {
+    "label": "Ellis Island Hotel, Casino & Brewery",
+    "value": "Ellis Island Hotel, Casino & Brewery"
+  },
+  {
+    "label": "Desert Rose Resort",
+    "value": "Desert Rose Resort"
+  },
+  {
+    "label": "Marriott’s Grand Chateau",
+    "value": "Marriott’s Grand Chateau"
+  },
+  {
+    "label": "Holiday Inn Club Vacations Desert Club",
+    "value": "Holiday Inn Club Vacations Desert Club"
+  },
+  {
+    "label": "The Carriage House",
+    "value": "The Carriage House"
+  },
+  {
+    "label": "Virgin Hotels Las Vegas, Curio Collection",
+    "value": "Virgin Hotels Las Vegas, Curio Collection"
+  },
+  {
+    "label": "The Berkley Las Vegas",
+    "value": "The Berkley Las Vegas"
+  },
+  {
+    "label": "Club Wyndham Grand Desert",
+    "value": "Club Wyndham Grand Desert"
+  },
+  {
+    "label": "Club Wyndham Desert Blue",
+    "value": "Club Wyndham Desert Blue"
+  },
+  {
+    "label": "Hilton Vacation Club Cancun Resort Las Vegas",
+    "value": "Hilton Vacation Club Cancun Resort Las Vegas"
+  },
+  {
+    "label": "Hilton Vacation Club Polo Towers Las Vegas",
+    "value": "Hilton Vacation Club Polo Towers Las Vegas"
+  },
+  {
+    "label": "The Grandview at Las Vegas",
+    "value": "The Grandview at Las Vegas"
+  },
+  {
+    "label": "Westgate Las Vegas Resort & Casino",
+    "value": "Westgate Las Vegas Resort & Casino"
+  },
+  {
+    "label": "Las Vegas Marriott",
+    "value": "Las Vegas Marriott"
+  },
+  {
+    "label": "Courtyard by Marriott Las Vegas Convention Center",
+    "value": "Courtyard by Marriott Las Vegas Convention Center"
+  },
+  {
+    "label": "Residence Inn by Marriott Las Vegas Convention Center",
+    "value": "Residence Inn by Marriott Las Vegas Convention Center"
+  },
+  {
+    "label": "SpringHill Suites Las Vegas Convention Center",
+    "value": "SpringHill Suites Las Vegas Convention Center"
+  },
+  {
+    "label": "Embassy Suites by Hilton Convention Center Las Vegas",
+    "value": "Embassy Suites by Hilton Convention Center Las Vegas"
+  },
+  {
+    "label": "Embassy Suites by Hilton Las Vegas",
+    "value": "Embassy Suites by Hilton Las Vegas"
+  },
+  {
+    "label": "Hyatt Place Las Vegas",
+    "value": "Hyatt Place Las Vegas"
+  },
+  {
+    "label": "Hyatt Place Las Vegas at Silverton Village",
+    "value": "Hyatt Place Las Vegas at Silverton Village"
+  },
+  {
+    "label": "AC Hotel Las Vegas Convention Center",
+    "value": "AC Hotel Las Vegas Convention Center"
+  },
+  {
+    "label": "Fairfield Inn & Suites Las Vegas Airport South",
+    "value": "Fairfield Inn & Suites Las Vegas Airport South"
+  },
+  {
+    "label": "Fairfield Inn & Suites Las Vegas Stadium Area",
+    "value": "Fairfield Inn & Suites Las Vegas Stadium Area"
+  },
+  {
+    "label": "Hampton Inn Tropicana",
+    "value": "Hampton Inn Tropicana"
+  },
+  {
+    "label": "Hampton Inn Las Vegas Strip South",
+    "value": "Hampton Inn Las Vegas Strip South"
+  },
+  {
+    "label": "Hampton Inn & Suites Las Vegas Airport",
+    "value": "Hampton Inn & Suites Las Vegas Airport"
+  },
+  {
+    "label": "Hilton Garden Inn Las Vegas Strip South",
+    "value": "Hilton Garden Inn Las Vegas Strip South"
+  },
+  {
+    "label": "Hilton Garden Inn Las Vegas/Henderson",
+    "value": "Hilton Garden Inn Las Vegas/Henderson"
+  },
+  {
+    "label": "Homewood Suites by Hilton Las Vegas Airport",
+    "value": "Homewood Suites by Hilton Las Vegas Airport"
+  },
+  {
+    "label": "Homewood Suites by Hilton Las Vegas City Center",
+    "value": "Homewood Suites by Hilton Las Vegas City Center"
+  },
+  {
+    "label": "Home2 Suites by Hilton Las Vegas Strip South",
+    "value": "Home2 Suites by Hilton Las Vegas Strip South"
+  },
+  {
+    "label": "Home2 Suites by Hilton Las Vegas Convention Center",
+    "value": "Home2 Suites by Hilton Las Vegas Convention Center"
+  },
+  {
+    "label": "DoubleTree by Hilton Hotel Las Vegas Airport",
+    "value": "DoubleTree by Hilton Hotel Las Vegas Airport"
+  },
+  {
+    "label": "DoubleTree by Hilton Las Vegas East Flamingo",
+    "value": "DoubleTree by Hilton Las Vegas East Flamingo"
+  },
+  {
+    "label": "Holiday Inn Express & Suites Las Vegas – E Tropicana",
+    "value": "Holiday Inn Express & Suites Las Vegas – E Tropicana"
+  },
+  {
+    "label": "Holiday Inn Express Las Vegas – South",
+    "value": "Holiday Inn Express Las Vegas – South"
+  },
+  {
+    "label": "Holiday Inn Express & Suites Las Vegas Northwest",
+    "value": "Holiday Inn Express & Suites Las Vegas Northwest"
+  },
+  {
+    "label": "Best Western Plus Casino Royale – Center Strip",
+    "value": "Best Western Plus Casino Royale – Center Strip"
+  },
+  {
+    "label": "Best Western McCarran Inn",
+    "value": "Best Western McCarran Inn"
+  },
+  {
+    "label": "Best Western Plus Las Vegas South Henderson",
+    "value": "Best Western Plus Las Vegas South Henderson"
+  },
+  {
+    "label": "La Quinta Inn & Suites by Wyndham Las Vegas Airport South",
+    "value": "La Quinta Inn & Suites by Wyndham Las Vegas Airport South"
+  },
+  {
+    "label": "La Quinta Inn & Suites Las Vegas Tropicana",
+    "value": "La Quinta Inn & Suites Las Vegas Tropicana"
+  },
+  {
+    "label": "La Quinta Inn & Suites Las Vegas RedRock/Summerlin",
+    "value": "La Quinta Inn & Suites Las Vegas RedRock/Summerlin"
+  },
+  {
+    "label": "La Quinta Inn & Suites Las Vegas Nellis",
+    "value": "La Quinta Inn & Suites Las Vegas Nellis"
+  },
+  {
+    "label": "Courtyard by Marriott Las Vegas South",
+    "value": "Courtyard by Marriott Las Vegas South"
+  },
+  {
+    "label": "Courtyard by Marriott Las Vegas Henderson/Green Valley",
+    "value": "Courtyard by Marriott Las Vegas Henderson/Green Valley"
+  },
+  {
+    "label": "Residence Inn Las Vegas South",
+    "value": "Residence Inn Las Vegas South"
+  },
+  {
+    "label": "Residence Inn Las Vegas Hughes Center",
+    "value": "Residence Inn Las Vegas Hughes Center"
+  },
+  {
+    "label": "TownePlace Suites Las Vegas Henderson",
+    "value": "TownePlace Suites Las Vegas Henderson"
+  },
+  {
+    "label": "TownePlace Suites Las Vegas City Center",
+    "value": "TownePlace Suites Las Vegas City Center"
+  },
+  {
+    "label": "Comfort Inn & Suites Henderson – Las Vegas",
+    "value": "Comfort Inn & Suites Henderson – Las Vegas"
+  },
+  {
+    "label": "Comfort Inn & Suites Las Vegas – Nellis",
+    "value": "Comfort Inn & Suites Las Vegas – Nellis"
+  },
+  {
+    "label": "Quality Inn & Suites Las Vegas",
+    "value": "Quality Inn & Suites Las Vegas"
+  },
+  {
+    "label": "Red Roof Inn Las Vegas",
+    "value": "Red Roof Inn Las Vegas"
+  },
+  {
+    "label": "Extended Stay America – Las Vegas – East Flamingo",
+    "value": "Extended Stay America – Las Vegas – East Flamingo"
+  },
+  {
+    "label": "Extended Stay America – Las Vegas – Midtown",
+    "value": "Extended Stay America – Las Vegas – Midtown"
+  },
+  {
+    "label": "Extended Stay America – Las Vegas – Valley View",
+    "value": "Extended Stay America – Las Vegas – Valley View"
+  },
+  {
+    "label": "Extended Stay America – Las Vegas – Boulder Hwy",
+    "value": "Extended Stay America – Las Vegas – Boulder Hwy"
+  },
+  {
+    "label": "Extended Stay America – Las Vegas – Stadium",
+    "value": "Extended Stay America – Las Vegas – Stadium"
+  },
+  {
+    "label": "Staybridge Suites Las Vegas",
+    "value": "Staybridge Suites Las Vegas"
+  },
+  {
+    "label": "Staybridge Suites Las Vegas – Stadium District",
+    "value": "Staybridge Suites Las Vegas – Stadium District"
+  },
+  {
+    "label": "Candlewood Suites Las Vegas – E Tropicana",
+    "value": "Candlewood Suites Las Vegas – E Tropicana"
+  },
+  {
+    "label": "Candlewood Suites Las Vegas – Nellis",
+    "value": "Candlewood Suites Las Vegas – Nellis"
+  },
+  {
+    "label": "Sonesta Simply Suites Las Vegas",
+    "value": "Sonesta Simply Suites Las Vegas"
+  },
+  {
+    "label": "Sonesta ES Suites Las Vegas Convention Center",
+    "value": "Sonesta ES Suites Las Vegas Convention Center"
+  },
+  {
+    "label": "Sonesta Select Las Vegas Summerlin",
+    "value": "Sonesta Select Las Vegas Summerlin"
+  },
+  {
+    "label": "Siegel Select Las Vegas Boulevard",
+    "value": "Siegel Select Las Vegas Boulevard"
+  },
+  {
+    "label": "Siegel Select Flamingo",
+    "value": "Siegel Select Flamingo"
+  },
+  {
+    "label": "Siegel Select Convention Center",
+    "value": "Siegel Select Convention Center"
+  },
+  {
+    "label": "Motel 6 Las Vegas – Tropicana",
+    "value": "Motel 6 Las Vegas – Tropicana"
+  },
+  {
+    "label": "Motel 6 Las Vegas – I-15 Speedway",
+    "value": "Motel 6 Las Vegas – I-15 Speedway"
+  },
+  {
+    "label": "Motel 6 Las Vegas – Boulder Highway",
+    "value": "Motel 6 Las Vegas – Boulder Highway"
+  },
+  {
+    "label": "Motel 6 Las Vegas – Downtown",
+    "value": "Motel 6 Las Vegas – Downtown"
+  },
+  {
+    "label": "Motel 6 Las Vegas – Motor Speedway",
+    "value": "Motel 6 Las Vegas – Motor Speedway"
+  },
+  {
+    "label": "Super 8 by Wyndham Las Vegas North Strip/Fremont St. Area",
+    "value": "Super 8 by Wyndham Las Vegas North Strip/Fremont St. Area"
+  },
+  {
+    "label": "Super 8 by Wyndham Las Vegas Nellis AFB Area",
+    "value": "Super 8 by Wyndham Las Vegas Nellis AFB Area"
+  },
+  {
+    "label": "Travelodge by Wyndham Las Vegas Center Strip",
+    "value": "Travelodge by Wyndham Las Vegas Center Strip"
+  },
+  {
+    "label": "Travelodge by Wyndham Las Vegas Airport Near The Strip",
+    "value": "Travelodge by Wyndham Las Vegas Airport Near The Strip"
+  },
+  {
+    "label": "Howard Johnson by Wyndham Las Vegas",
+    "value": "Howard Johnson by Wyndham Las Vegas"
+  },
+  {
+    "label": "Days Inn by Wyndham Las Vegas Wild Wild West",
+    "value": "Days Inn by Wyndham Las Vegas Wild Wild West"
+  },
+  {
+    "label": "Days Inn by Wyndham Las Vegas Airport Near the Strip",
+    "value": "Days Inn by Wyndham Las Vegas Airport Near the Strip"
+  },
+  {
+    "label": "Econo Lodge Las Vegas Blvd South",
+    "value": "Econo Lodge Las Vegas Blvd South"
+  },
+  {
+    "label": "America’s Best Value Inn Las Vegas Strip",
+    "value": "America’s Best Value Inn Las Vegas Strip"
+  },
+  {
+    "label": "Travelers Bed & Breakfast Hostel",
+    "value": "Travelers Bed & Breakfast Hostel"
+  },
+  {
+    "label": "Downtowner Boutique Hotel",
+    "value": "Downtowner Boutique Hotel"
+  },
+  {
+    "label": "Serene Vegas Boutique Hotel",
+    "value": "Serene Vegas Boutique Hotel"
+  },
+  {
+    "label": "Hilton Lake Las Vegas Resort & Spa",
+    "value": "Hilton Lake Las Vegas Resort & Spa"
+  },
+  {
+    "label": "The Westin Lake Las Vegas Resort & Spa",
+    "value": "The Westin Lake Las Vegas Resort & Spa"
+  },
+  {
+    "label": "Railroad Pass Hotel & Casino",
+    "value": "Railroad Pass Hotel & Casino"
+  },
+  {
+    "label": "Best Western Hoover Dam Hotel",
+    "value": "Best Western Hoover Dam Hotel"
+  },
+  {
+    "label": "Boulder Dam Hotel",
+    "value": "Boulder Dam Hotel"
+  },
+  {
+    "label": "Fiesta Henderson (Closed – excluded)",
+    "value": "Fiesta Henderson (Closed – excluded)"
+  }
+]

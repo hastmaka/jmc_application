@@ -1,0 +1,31 @@
+.tab-root {
+  .tab {
+    &:hover {
+      background-color: light-dark(var(--mantine-color-gray-8), var(--mantine-color-dark-7));
+      color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-0));
+    }
+
+    &[data-active="true"] {
+      background-color: light-dark(var(--mantine-color-gray-8), var(--mantine-color-dark-7));
+      color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-0));
+    }
+  }
+}
+
+.container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  
+  .scroll-area {
+    .viewport {
+      display: flex;
+      > div {
+        display: flex !important;
+        flex-direction: column;
+        flex: 1;
+      }
+    }
+  }
+}

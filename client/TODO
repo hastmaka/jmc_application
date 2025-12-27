@@ -1,0 +1,15 @@
+Now Module
+
+Print directly
+
+fuel - report fuel consume in each day
+
+miles
+day - miles (current odometer miles) - diff (difference between last day and prev day odometer) - """""this is gonna be a miles to do maintenance
+
+week-month
+
+
+//changes in db
+need to use client table
+need to create new itinerary table
