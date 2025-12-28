@@ -1,5 +1,6 @@
 import {Request, Response} from "express";
 import Inspection from '../../classes/Inspection.ts'
+import InspectionVehicle from '../../classes/InspectionVehicle.ts'
 import {handleDataToReturn, handleError, manageFilter} from "../../utils/index.js";
 import models from '../../db/index.ts';
 import {Transaction} from "sequelize";
@@ -14,7 +15,12 @@ export const _inspection = {
                 include: [{
                     model: models.employee, as: 'inspection_employee', required: false
                 }, {
-                    model: models.car, as: 'inspection_car', required: false
+                    model: models.inspection_vehicle,
+                    as: 'inspection_vehicles',
+                    required: false,
+                    include: [{
+                        model: models.car, as: 'vehicle_car', required: false
+                    }]
                 }],
                 order: [['inspection_date', 'DESC']]
             }
@@ -35,7 +41,12 @@ export const _inspection = {
                 include: [{
                     model: models.employee, as: 'inspection_employee', required: false
                 }, {
-                    model: models.car, as: 'inspection_car', required: false
+                    model: models.inspection_vehicle,
+                    as: 'inspection_vehicles',
+                    required: false,
+                    include: [{
+                        model: models.car, as: 'vehicle_car', required: false
+                    }]
                 }]
             }
 
@@ -52,11 +63,25 @@ export const _inspection = {
         try {
             transaction = await models.sequelize!.transaction();
 
-            await Inspection.createInspectionFactory(transaction, req.body, req.authUser);
+            const { vehicles, ...inspectionData } = req.body;
+
+            // Create inspection
+            const inspection = await Inspection.createInspectionFactory(transaction, inspectionData, req.authUser);
+            const inspectionId = inspection.get('inspection_id');
+
+            // Create vehicles if provided
+            if (vehicles && Array.isArray(vehicles) && vehicles.length > 0) {
+                for (const vehicle of vehicles) {
+                    await InspectionVehicle.createInspectionVehicleFactory(transaction, {
+                        ...vehicle,
+                        inspection_inspection_id: inspectionId
+                    }, req.authUser);
+                }
+            }
 
             await transaction.commit();
 
-            res.json(await handleDataToReturn({}, req?.authUser?.auth));
+            res.json(await handleDataToReturn({ inspection_id: inspectionId }, req?.authUser?.auth));
         } catch (e: any) {
             if (transaction) {
                 await transaction.rollback();
@@ -71,7 +96,25 @@ export const _inspection = {
         try {
             transaction = await models.sequelize!.transaction();
 
-            await Inspection.updateInspectionFactory(transaction, req.body, req.authUser);
+            const { vehicles, ...inspectionData } = req.body;
+            const inspectionId = inspectionData.inspection_id;
+
+            // Update inspection
+            await Inspection.updateInspectionFactory(transaction, inspectionData, req.authUser);
+
+            // Handle vehicles: delete existing and recreate
+            if (vehicles && Array.isArray(vehicles)) {
+                // Delete existing vehicles for this inspection
+                await InspectionVehicle.deleteByInspectionId(transaction, inspectionId, req.authUser);
+
+                // Create new vehicles
+                for (const vehicle of vehicles) {
+                    await InspectionVehicle.createInspectionVehicleFactory(transaction, {
+                        ...vehicle,
+                        inspection_inspection_id: inspectionId
+                    }, req.authUser);
+                }
+            }
 
             await transaction.commit();
 
@@ -90,10 +133,19 @@ export const _inspection = {
         let transaction: Transaction | undefined;
         try {
             transaction = await models.sequelize!.transaction();
+
+            // Delete vehicles first (or rely on CASCADE)
+            await InspectionVehicle.deleteByInspectionId(transaction, +inspection_id, req?.authUser?.auth);
+
+            // Delete inspection
             await Inspection.deleteInspection(transaction, +inspection_id, req?.authUser?.auth);
+
             await transaction.commit();
             res.json(await handleDataToReturn({}, req?.authUser?.auth));
         } catch (e: any) {
+            if (transaction) {
+                await transaction.rollback();
+            }
             console.log(e.message);
             handleError(res, e)
         }

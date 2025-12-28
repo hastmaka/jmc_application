@@ -1,5 +1,5 @@
-import {useLayoutEffect, useMemo, useRef} from "react";
-import {ActionIcon, Card, Fieldset, Flex, Group, Stack, TextInput} from "@mantine/core";
+import React, {useLayoutEffect, useMemo, useRef} from "react";
+import {ActionIcon, Button, Card, Fieldset, Flex, Group, SimpleGrid, Stack, TextInput} from "@mantine/core";
 import FormGenerator from "@/components/form/FormGenerator.tsx";
 import EzText from "@/ezMantine/text/EzText.tsx";
 import {DashboardModalController} from "@/view/dashboard/_modal/DashboardModalController.ts";
@@ -7,7 +7,8 @@ import {IconClock, IconPlus, IconTrash} from "@tabler/icons-react";
 import {TimeInput} from "@mantine/dates";
 import EzScroll from "@/ezMantine/scroll/EzScroll.tsx";
 import SaveCancelDeleteBtns from "@/components/SaveCancelDeleteBtns.tsx";
-import u from "@/util";
+import VehicleSection from "@/view/dashboard/_modal/VehicleSection.tsx";
+import ReservationsSection from "@/view/dashboard/_modal/ReservationsSection.tsx";
 
 function TimeInputWithPicker({label, value, onChange, style}: {
     label?: string,
@@ -52,108 +53,49 @@ export default function DriverReportModal({
         addBreak,
         updateBreak,
         removeBreak,
+        vehicleData,
+        addVehicle,
     } = DashboardModalController;
-    const priceByGallon = formData?.inspection?.inspection_gas_cost / formData?.inspection?.inspection_gas_gallons || 0
 
-    const start = parseInt(formData?.inspection?.inspection_odometer_start) || 0;
-    const end = parseInt(formData?.inspection?.inspection_odometer_end) || 0;
-    const totalMiles = end - start > 0 ? end - start : 0
+    const inspectionDate = formData?.inspection?.inspection_date;
 
     useLayoutEffect(() => {
         if (inspectionId) { modalData('inspection', FIELDS, +inspectionId) }
     }, [inspectionId]);
 
-    const FIELDS =
-        useMemo(() => [
-            {
-                name: 'employee_employee_id',
-                label: 'Driver',
-                type: 'select',
-                required: true,
-                fieldProps: {
-                    url: 'v1/employee/asset',
-                    iterator: {label: 'employee_full_name', value: 'employee_id'},
-                },
+    const FIELDS = useMemo(() => [
+        {
+            name: 'employee_employee_id',
+            label: 'Driver',
+            type: 'select',
+            required: true,
+            fieldProps: {
+                url: 'v1/employee/asset',
+                iterator: {label: 'employee_full_name', value: 'employee_id'},
             },
-            {
-                name: 'car_car_id',
-                label: 'Vehicle',
-                type: 'select',
-                required: true,
-                fieldProps: {
-                    url: 'v1/car/asset',
-                    iterator: {label: 'car_name', value: 'car_id'},
-                },
-            },
-            {
-                name: 'inspection_date',
-                label: 'Date',
-                type: 'date',
-                required: true,
-            },
-            {
-                name: 'inspection_start_time',
-                label: 'Start Time',
-                type: 'time',
-            },
-            {
-                name: 'inspection_end_time',
-                label: 'End Time',
-                type: 'time',
-            },
-
-            {
-                name: 'inspection_odometer_start',
-                label: 'Odometer Start',
-                type: 'number',
-                thousandSeparator: ','
-            },
-            {
-                name: 'inspection_odometer_end',
-                label: 'Odometer End',
-                type: 'number',
-                thousandSeparator: ','
-            },
-            {
-                name: 'total',
-                type: "component",
-                component: (
-                    <Group miw={160} pt={24} pos='relative' wrap='nowrap' gap={4} flex={1}>
-                        <EzText size='xl'>Total Miles:</EzText>
-                        <EzText size='xl'>{totalMiles > 0 ? `${u.formatMoney(totalMiles, false)} mi` : null}</EzText>
-                    </Group>
-                ),
-            },
-
-            {
-                name: 'inspection_gas_gallons',
-                label: 'Gallons',
-                type: 'number',
-                leftSection: '$'
-            },
-            {
-                name: 'inspection_gas_cost',
-                label: 'Gas Cost Total($)',
-                type: 'number',
-                leftSection: '$'
-            },
-            {
-                name: 'total',
-                type: "component",
-                component: (
-                    <Group miw={160} pt={24} pos='relative' wrap='nowrap' gap={4} flex={1}>
-                        <EzText size='xl'>Price per Gallon :</EzText>
-                        <EzText size='xl'>{priceByGallon > 0 ? u.formatMoney(priceByGallon) : null}</EzText>
-                    </Group>
-                ),
-            },
-
-            {
-                name: 'inspection_notes',
-                label: 'Notes',
-                type: 'textarea',
-            },
-        ], [priceByGallon, totalMiles]);
+        },
+        {
+            name: 'inspection_date',
+            label: 'Date',
+            type: 'date',
+            required: true,
+        },
+        {
+            name: 'inspection_start_time',
+            label: 'Start Time',
+            type: 'time',
+        },
+        {
+            name: 'inspection_end_time',
+            label: 'End Time',
+            type: 'time',
+        },
+        {
+            name: 'inspection_notes',
+            label: 'Notes',
+            type: 'textarea',
+        },
+    ], []);
 
     async function handleSubmit() {
         if (checkRequired('inspection', FIELDS)) {
@@ -181,8 +123,8 @@ export default function DriverReportModal({
                 <Stack gap={16}>
                     <Fieldset legend='Info'>
                         <FormGenerator
-                            field={FIELDS.slice(0, 5)}
-                            structure={[5]}
+                            field={FIELDS.slice(0, 4)}
+                            structure={[4]}
                             handleInput={(name: any, value: any) =>
                                 handleInput('inspection', name, value)}
                             formData={formData?.['inspection']}
@@ -190,29 +132,7 @@ export default function DriverReportModal({
                         />
                     </Fieldset>
 
-                    <Fieldset legend='Mileage'>
-                        <FormGenerator
-                            field={FIELDS.slice(5, 8)}
-                            structure={[3]}
-                            handleInput={(name: any, value: any) =>
-                                handleInput('inspection', name, value)}
-                            formData={formData?.['inspection']}
-                            errors={errors?.['inspection']}
-                        />
-                    </Fieldset>
-
-                    <Fieldset legend='Gas'>
-                        <FormGenerator
-                            field={FIELDS.slice(8, 11)}
-                            structure={[3]}
-                            handleInput={(name: any, value: any) =>
-                                handleInput('inspection', name, value)}
-                            formData={formData?.['inspection']}
-                            errors={errors?.['inspection']}
-                        />
-                    </Fieldset>
-
-                    <Card withBorder>
+                    <Card withBorder shadow='none'>
                         <Stack gap={8}>
                             <Group justify="space-between">
                                 <EzText fw="bold">Break Log</EzText>
@@ -256,6 +176,33 @@ export default function DriverReportModal({
                         </Stack>
                     </Card>
 
+                    {/* Vehicles Section */}
+                    <Stack gap={8}>
+                        <Group justify="space-between">
+                            <EzText fw="bold" size="lg">Vehicles</EzText>
+                            <Button
+                                leftSection={<IconPlus size={14} />}
+                                onClick={addVehicle}
+                            >
+                                Add Vehicle
+                            </Button>
+                        </Group>
+
+                        <SimpleGrid cols={vehicleData?.length > 1 ? 2 : 1} spacing="sm">
+                            {vehicleData?.map((_: any, index: number) => (
+                                <VehicleSection
+                                    key={index}
+                                    index={index}
+                                    inspectionDate={inspectionDate}
+                                    canRemove={vehicleData.length > 1}
+                                />
+                            ))}
+                        </SimpleGrid>
+                    </Stack>
+
+                    {/* Combined Reservations from all vehicles */}
+                    <ReservationsSection />
+
                     <FormGenerator
                         field={FIELDS.slice(FIELDS.length - 1)}
                         structure={[1]}
@@ -275,7 +222,6 @@ export default function DriverReportModal({
                     window.closeModal(modalId)
                 }}
                 label={{accept: 'Save', cancel: 'Cancel'}}
-
             />
         </Stack>
     );

@@ -7,6 +7,7 @@ import NotificationModel from "./NotificationModel.ts";
 import CarModel from "./CarModel.ts";
 import EmployeeModel from "./EmployeeModel.ts";
 import InspectionModel from "./InspectionModel.ts";
+import InspectionVehicleModel from "./InspectionVehicleModel.ts";
 
 const models = {
 	asset: AssetModel,
@@ -18,6 +19,7 @@ const models = {
 	notification: NotificationModel,
     employee: EmployeeModel,
     inspection: InspectionModel,
+    inspectionVehicle: InspectionVehicleModel,
 } as const;
 
 // 🔹 This type is now the keys of the models object

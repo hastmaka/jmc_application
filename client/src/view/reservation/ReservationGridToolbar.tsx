@@ -1,15 +1,15 @@
 import {Group} from "@mantine/core";
 import {lazy, Suspense, useMemo} from "react";
 import EzLoader from "@/ezMantine/loader/EzLoader.tsx";
-import {IconCar, IconFileExport, IconFilter, IconUsers} from "@tabler/icons-react";
+import {IconCar, IconFileExport, IconUsers} from "@tabler/icons-react";
 import EzGroupBtn from "@/ezMantine/buttonGroup/EzGroupBtn.tsx";
 import ToolBar from "@/ezMantine/mantineDataGrid/toolbar/ToolBar.tsx";
 import EzSearchInput from "@/ezMantine/searchInput/EzSearchInput.tsx";
 import {ReservationModalController} from "@/view/reservation/_modal/ReservationModalController.ts";
-import {DatePickerInput} from "@mantine/dates";
 import {LoginController} from "@/view/login/LoginController.ts";
 import {ReservationController} from "@/view/reservation/ReservationController.ts";
 import EzSelect from "@/ezMantine/select/EzSelect.tsx";
+import DatePickerInputWithMonth from "@/components/DatePickerInputWithMonth.tsx";
 // dynamic import
 const ManageEmployee =
     lazy(() => import('./_modal/manageEmployee/ManageEmployee.tsx'))
@@ -134,17 +134,21 @@ export default function ReservationGridToolbar({
                         iterator={{label: 'car_plate', value: 'car_id'}}
                         fetchEveryTime={false}
                     />
-                    <DatePickerInput
-                        w={340}
-                        type='range'
-                        clearable
-                        rightSection={<IconFilter size={18} stroke={1.5} />}
-                        rightSectionPointerEvents="none"
-                        placeholder="Date Range Filter"
-                        allowSingleDateInRange
-                        value={ReservationController?.rangeDateValue || user?.user_preference.rangeDateValue}
-                        onChange={handleDateRangeChange}
+                    <DatePickerInputWithMonth
+                        formData={ReservationController?.rangeDateValue || user?.user_preference.rangeDateValue}
+                        handleInput={(_type, _name, value) => handleDateRangeChange(value)}
                     />
+                    {/*<DatePickerInput*/}
+                    {/*    w={340}*/}
+                    {/*    type='range'*/}
+                    {/*    clearable*/}
+                    {/*    rightSection={<IconFilter size={18} stroke={1.5} />}*/}
+                    {/*    rightSectionPointerEvents="none"*/}
+                    {/*    placeholder="Date Range Filter"*/}
+                    {/*    allowSingleDateInRange*/}
+                    {/*    value={ReservationController?.rangeDateValue || user?.user_preference.rangeDateValue}*/}
+                    {/*    onChange={handleDateRangeChange}*/}
+                    {/*/>*/}
                     <EzGroupBtn ITEMS={ACTIONBTNS}/>
                 </Group>
             </Group>

@@ -1,50 +1,54 @@
 import { DataTypes, Model, Sequelize, ModelStatic } from 'sequelize';
 
 export default function (sequelize: Sequelize): ModelStatic<Model> {
-    const Model = sequelize.define('inspection', {
-        inspection_id: {
+    const Model = sequelize.define('inspection_vehicle', {
+        inspection_vehicle_id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        employee_employee_id: {
+        inspection_inspection_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'employees',
-                key: 'employee_id'
+                model: 'inspections',
+                key: 'inspection_id'
             }
         },
-        inspection_date: {
-            type: DataTypes.DATEONLY,
+        car_car_id: {
+            type: DataTypes.INTEGER,
             allowNull: false,
+            references: {
+                model: 'cars',
+                key: 'car_id'
+            }
         },
 
-        // Shift Info
-        inspection_start_time: {
-            type: DataTypes.TIME,
+        // Mileage
+        inspection_vehicle_odometer_start: {
+            type: DataTypes.INTEGER,
             allowNull: true,
         },
-        inspection_end_time: {
-            type: DataTypes.TIME,
+        inspection_vehicle_odometer_end: {
+            type: DataTypes.INTEGER,
             allowNull: true,
         },
 
-        // Break Log (JSON array)
-        inspection_breaks: {
+        // Gas Log
+        inspection_vehicle_gas_gallons: {
+            type: DataTypes.DECIMAL(10, 3),
+            allowNull: true,
+        },
+        inspection_vehicle_gas_cost: {
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: true,
+        },
+
+        // Selected reservations for the report (JSON array of IDs)
+        inspection_vehicle_reservation_ids: {
             type: DataTypes.JSON,
             allowNull: true,
-            comment: '[{start: "10:30", end: "11:00", initial: "JG"}, ...]'
-        },
-
-        // Audit
-        inspection_notes: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-        },
-        inspection_signature: {
-            type: DataTypes.TEXT,
-            allowNull: true,
+            comment: '[1, 2, 3, ...] - reservation IDs included in report'
         },
 
         created_at: {
@@ -62,7 +66,7 @@ export default function (sequelize: Sequelize): ModelStatic<Model> {
             allowNull: true
         },
     }, {
-        tableName: 'inspections',
+        tableName: 'inspection_vehicles',
         underscored: true,
         timestamps: true,
         paranoid: true,
@@ -72,25 +76,25 @@ export default function (sequelize: Sequelize): ModelStatic<Model> {
         indexes: [
             {
                 unique: true,
-                fields: ['employee_employee_id', 'inspection_date'],
+                fields: ['inspection_inspection_id', 'car_car_id'],
                 where: { deleted_at: null }
             }
         ]
     });
 
     (Model as ModelStatic<any> & { associate?: (models: any) => void }).associate =
-        function ({ employee, inspection_vehicle }: any) {
-            Model.belongsTo(employee, {
-                as: 'inspection_employee',
-                foreignKey: 'employee_employee_id',
-                onDelete: "NO ACTION",
-                onUpdate: "NO ACTION"
-            });
-            Model.hasMany(inspection_vehicle, {
-                as: 'inspection_vehicles',
+        function ({ inspection, car }: any) {
+            Model.belongsTo(inspection, {
+                as: 'vehicle_inspection',
                 foreignKey: 'inspection_inspection_id',
                 onDelete: "CASCADE",
                 onUpdate: "CASCADE"
+            });
+            Model.belongsTo(car, {
+                as: 'vehicle_car',
+                foreignKey: 'car_car_id',
+                onDelete: "NO ACTION",
+                onUpdate: "NO ACTION"
             });
         };
 

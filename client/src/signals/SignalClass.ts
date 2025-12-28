@@ -31,15 +31,7 @@ export class SignalState<
 				const manualResetKeys = Array.isArray(this.props.manualReset) ? this.props.manualReset : [];
 
 				// manualReset: skip adding to reset if key is in manualResetKeys
-				if (manualResetKeys.includes(key)) {
-					continue;
-				}
-
-				if (
-					// typeof this.props[key] === 'object' &&
-					// this.props[key] !== null &&
-					key !== 'store'
-				) {
+				if (!manualResetKeys.includes(key) && key !== 'store') {
 					// Avoid cloning if the object contains functions (e.g., editMap)
 					const avoid = Array.isArray(this.props.avoidDeepClone) ? this.props.avoidDeepClone : [];
 

@@ -1,12 +1,12 @@
 import EzCard from "@/ezMantine/card/EzCard.tsx";
-import {ActionIcon, Card, Divider, Flex, Group, Menu, Stack} from "@mantine/core";
+import {Card, Divider, Flex, Group, Stack} from "@mantine/core";
 import EzText from "@/ezMantine/text/EzText.tsx";
-import {type ReactNode, useState} from "react";
-import {IconChevronUp, IconEye, IconSelector} from "@tabler/icons-react";
-import {MonthPicker} from "@mantine/dates";
+import {type ReactNode, useMemo} from "react";
+import {IconChevronUp} from "@tabler/icons-react";
 import { AreaChart } from '@mantine/charts';
-import classes from './Fuel.module.scss'
-import {ActionIconsToolTip} from "@/ezMantine/actionIconTooltip/ActionIconsToolTip.tsx";
+import {DashboardController} from "@/view/dashboard/DashboardController.ts";
+import FormGenerator from "@/components/form/FormGenerator.tsx";
+import DatePickerInputWithMonth from "@/components/DatePickerInputWithMonth.tsx";
 
 const data = [
     {
@@ -43,59 +43,56 @@ const data = [
     },
 ];
 
-const car = [
-    {name: 'JMC01', totalSpend: '630'},
-    {name: 'JMC02', totalSpend: '630'},
-    {name: 'JMC03', totalSpend: '630'},
-    {name: 'JMC04', totalSpend: '630'},
-]
-
 export default function Fuel() {
-    const [value, setValue] = useState<string | null>(null);
+    const {
+        handleEmployeeChange,
+        formData,
+        handleInput,
+        errors
+    } = DashboardController;
+
+    const FIELDS =
+        useMemo(() => [
+            {
+                name: 'employee_id',
+                placeholder: 'Car',
+                type: 'select',
+                fieldProps: {
+                    url: 'v1/car/asset',
+                    iterator: {label: 'car_name', value: 'car_id'},
+                },
+                inputProps: {
+                    w: 260
+                }
+            },
+            {
+                name: 'date_range',
+                type: 'component',
+                component: (
+                    <DatePickerInputWithMonth formData={formData} handleInput={handleInput}/>
+                )
+            }
+        ], [])
 
     function customHeader(): ReactNode {
         return (
-            <Flex justify='space-between' flex={1}>
+            <Flex justify='space-between' flex={1} align='center'>
                 <EzText>Fuel Consumption</EzText>
-                <Group>
-                    <EzText>This Month</EzText>
-                    <Menu closeOnItemClick={false}>
-                        <Menu.Target>
-                            <ActionIcon variant='subtle'>
-                                <IconSelector/>
-                            </ActionIcon>
-                        </Menu.Target>
-                        <Menu.Dropdown
-                            style={{
-                                boxShadow: 'var(--mantine-shadow-md)',
-                                border: '1px solid var(--mantine-color-default-border)',
-                                background: 'var(--mantine-color-body)',
-                            }}
-                        >
-                            <Group align='flex-start'>
-                                <Stack gap={0}>
-                                    <Menu.Item>This Month</Menu.Item>
-                                    <Menu.Item>Last Week</Menu.Item>
-                                </Stack>
-                                <Divider orientation='vertical'/>
-                                <MonthPicker
-                                    value={value}
-                                    onChange={setValue}
-                                />
-                            </Group>
-                        </Menu.Dropdown>
-                    </Menu>
-                </Group>
+                <div style={{width: 'fit-content'}}>
+                    <FormGenerator
+                        field={FIELDS}
+                        structure={[2]}
+                        handleInput={(name, value) => {
+                            if (name === 'employee_id') handleEmployeeChange(value);
+                            handleInput('custom_header_fuel', name, value)
+                        }}
+                        formData={formData?.['custom_header_fuel']}
+                        errors={errors?.['custom_header_fuel']}
+                    />
+                </div>
             </Flex>
         )
     }
-
-    const ITEMS = [
-        {
-            icon: <IconEye/>,
-            tooltip: 'See Details'
-        }
-    ]
 
     return (
         <EzCard customHeader={customHeader()} container={{flex: 1}}>
@@ -127,7 +124,7 @@ export default function Fuel() {
                             </Group>
                         </Group>
                         <AreaChart
-                            h={140}
+                            h={240}
                             w='100%'
                             data={data}
                             dataKey="date"
@@ -137,22 +134,22 @@ export default function Fuel() {
                         />
                     </Stack>
                 </Card>
-                <Card>
-                    <Stack gap={8}>
-                        {car.map((item, index) =>
-                            <Group
-                                key={index}
-                                className={classes['car-button']}
-                            >
-                                <Group flex={1} justify='space-between'>
-                                    <EzText>{item.name}</EzText>
-                                    <EzText>${item.totalSpend}</EzText>
-                                </Group>
-                                <ActionIconsToolTip ITEMS={ITEMS}/>
-                            </Group>
-                        )}
-                    </Stack>
-                </Card>
+                {/*<Card>*/}
+                {/*    <Stack gap={8}>*/}
+                {/*        {car.map((item, index) =>*/}
+                {/*            <Group*/}
+                {/*                key={index}*/}
+                {/*                className={classes['car-button']}*/}
+                {/*            >*/}
+                {/*                <Group flex={1} justify='space-between'>*/}
+                {/*                    <EzText>{item.name}</EzText>*/}
+                {/*                    <EzText>${item.totalSpend}</EzText>*/}
+                {/*                </Group>*/}
+                {/*                <ActionIconsToolTip ITEMS={ITEMS}/>*/}
+                {/*            </Group>*/}
+                {/*        )}*/}
+                {/*    </Stack>*/}
+                {/*</Card>*/}
             </Stack>
         </EzCard>
     );

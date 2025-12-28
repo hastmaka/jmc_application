@@ -12,7 +12,7 @@ $border-color: var(--mantine-color-default-border);
   border: none;
 
   thead {
-    //background-color: lightgray;
+    background-color: var(--mantine-color-body);
     //border-top: 1px solid transparent;
     //margin-bottom: -2px;
     box-shadow: 0 2px 10px -2px #00000010;

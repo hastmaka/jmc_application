@@ -12,20 +12,17 @@ interface HeadItem {
 	render?: (row: any) => React.ReactNode;
 	style?: React.CSSProperties;
 }
-
 interface TdMapItem {
 	name?: string;
 	render?: (row: any, rowIndex: number) => React.ReactNode;
 	style?: React.CSSProperties;
 	w?: string | number;
 }
-
 interface Action {
 	tooltip: string;
 	icon: React.ReactNode;
 	onClick: (row: any) => void;
 }
-
 interface Toolbar {
 	component: React.ComponentType;
 }
@@ -41,6 +38,7 @@ interface EzTableProps {
 	actions?: Action[];
 	rowClick?: (row: any) => void;
 	dataKey: string;
+    scrollbars?: false | "y" | "x" | "xy" | undefined
 }
 
 export default function EzTable({
@@ -54,6 +52,7 @@ export default function EzTable({
 	actions,
 	dataKey,
 	rowClick,
+    scrollbars = 'y'
 }: EzTableProps) {
 	const ToolBar = toolbar ? toolbar.component : undefined;
 
@@ -135,24 +134,30 @@ export default function EzTable({
 			</Table.Tr>
 		));
 
+	const tableElement = (
+		<Table
+			stickyHeader={scrollbars !== false}
+			highlightOnHover
+			className={table.table}
+			style={{ "--is--action": actions?.length ? "center" : "left" } as React.CSSProperties}
+			{...tableProps}
+		>
+			<Table.Thead>
+				<Table.Tr>{thead}</Table.Tr>
+			</Table.Thead>
+			<Table.Tbody>{rows}</Table.Tbody>
+		</Table>
+	);
+
 	return (
 		<Stack gap={0} className={table.container} {...containerProps}>
 			{toolbar && ToolBar && <ToolBar />}
 			{data && data.length > 0 ? (
-				<EzScroll h={height} scrollbars='y'>
-					<Table
-						stickyHeader
-						highlightOnHover
-						className={table.table}
-						style={{ "--is--action": actions?.length ? "center" : "left" } as React.CSSProperties}
-						{...tableProps}
-					>
-						<Table.Thead>
-							<Table.Tr>{thead}</Table.Tr>
-						</Table.Thead>
-						<Table.Tbody>{rows}</Table.Tbody>
-					</Table>
-				</EzScroll>
+				scrollbars === false ? tableElement : (
+					<EzScroll h={height} scrollbars={scrollbars}>
+						{tableElement}
+					</EzScroll>
+				)
 			) : (
 				<Center h={height}>
 					<Stack align="center">
