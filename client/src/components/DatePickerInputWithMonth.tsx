@@ -16,12 +16,14 @@ function getMonthPresets(year: number): DatePickerPreset<'range'>[] {
 }
 
 export default function DatePickerInputWithMonth({
-    formData,
+    value = [null, null],
     handleInput,
+    type = '',
     ...rest
 }: {
-    formData: Record<string, any>;
+    value: any;
     handleInput: (type: string, name: string, value: any,) => void;
+    type: string;
     [key: string]: any;
 }) {
     const [displayedYear, setDisplayedYear] = useState(dayjs().year());
@@ -35,8 +37,8 @@ export default function DatePickerInputWithMonth({
             rightSectionPointerEvents="none"
             placeholder="Date Range Filter"
             allowSingleDateInRange
-            value={formData?.['date_range']}
-            onChange={(value) => handleInput('custom_header_fuel', 'date_range', value)}
+            value={value}
+            onChange={(value) => handleInput(type, 'date_range', value)}
             onDateChange={(date) => setDisplayedYear(dayjs(date).year())}
             presets={getMonthPresets(displayedYear)}
             {...rest}

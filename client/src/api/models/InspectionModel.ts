@@ -8,7 +8,10 @@ export default class InspectionModel extends EzModel {
             fields: [{
                 name: 'inspection_id', type: 'int'
             }, {
-                name: 'employee_employee_id', type: 'int'
+                name: 'employee_employee_id', type: 'string', mapping: 'inspection_employee',
+                render: (value: any) => {
+                    return value.employee_full_name || null
+                }
             }, {
                 name: 'inspection_date', type: 'string'
             }, {
@@ -23,11 +26,25 @@ export default class InspectionModel extends EzModel {
                 name: 'inspection_signature', type: 'string'
             }, {
                 name: 'employee_name', type: 'string', mapping: 'inspection_employee',
-                render: (value) => {
+                render: (value: any) => {
                     return value?.employee_full_name || null
                 }
             }, {
                 name: 'inspection_vehicles', type: 'array'
+            }, {
+                name: 'inspection_total_miles', type: 'int'
+            }, {
+                name: 'inspection_gas_gallons', type: 'string'
+            }, {
+                name: 'inspection_gas_cost', type: 'string'
+            }, {
+                name: 'inspection_grand_total', type: 'string'
+            }, {
+                name: 'inspection_total_to_company', type: 'string'
+            }, {
+                name: 'inspection_odometer_start', type: 'int'
+            }, {
+                name: 'inspection_odometer_end', type: 'int'
             }],
             data
         });

@@ -10,13 +10,16 @@ export default class InspectionVehicleModel extends EzModel {
             }, {
                 name: 'inspection_inspection_id', type: 'int'
             }, {
-                name: 'car_car_id', type: 'int'
+                name: 'car_car_id', type: 'string', mapping: 'vehicle_car',
+                render: (value: any) => {
+                    return value?.car_name || null
+                }
             }, {
-                name: 'inspection_vehicle_odometer_start', type: 'int'
+                name: 'inspection_vehicle_odometer_start', type: 'string'
             }, {
-                name: 'inspection_vehicle_odometer_end', type: 'int'
+                name: 'inspection_vehicle_odometer_end', type: 'string'
             }, {
-                name: 'inspection_vehicle_gas_gallons', type: 'money'
+                name: 'inspection_vehicle_gas_gallons', type: 'string'
             }, {
                 name: 'inspection_vehicle_gas_cost', type: 'money'
             }, {
@@ -25,6 +28,16 @@ export default class InspectionVehicleModel extends EzModel {
                 name: 'car_name', type: 'string', mapping: 'vehicle_car',
                 render: (value) => {
                     return value?.car_name || null
+                }
+            }, {
+                name: 'car_plate', type: 'string', mapping: 'vehicle_car',
+                render: (value) => {
+                    return value?.car_plate || null
+                }
+            }, {
+                name: 'car_color', type: 'string', mapping: 'vehicle_car',
+                render: (value) => {
+                    return value?.car_color || null
                 }
             }],
             data

@@ -89,6 +89,7 @@ function AssetOptionList() {
 
     const rows = optionsData.map((option: any) => (
         <Table.Tr key={option.asset_option_id}>
+            <Table.Td>{option.asset_option_id}</Table.Td>
             <Table.Td>{option.asset_option_name}</Table.Td>
             <Table.Td>
                 <Badge color={option.asset_option_active ? "teal.8" : "gray"}>
@@ -152,6 +153,7 @@ function AssetOptionList() {
                     <Table striped highlightOnHover>
                         <Table.Thead>
                             <Table.Tr>
+                                <Table.Th>DB ID</Table.Th>
                                 <Table.Th>Option Name</Table.Th>
                                 <Table.Th>Status</Table.Th>
                                 <Table.Th>Toggle</Table.Th>

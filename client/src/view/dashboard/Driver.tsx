@@ -1,17 +1,16 @@
 import EzCard from "@/ezMantine/card/EzCard.tsx";
-import {Card, Divider, Flex, Group, Stack} from "@mantine/core";
+import {ActionIcon, Card, Divider, Flex, Group, Stack, Tooltip} from "@mantine/core";
 import EzText from "@/ezMantine/text/EzText.tsx";
-import {type ReactNode, useMemo} from "react";
+import {type ReactNode} from "react";
 import {DashboardController} from "@/view/dashboard/DashboardController.ts";
-import EzLoader from "@/ezMantine/loader/EzLoader.tsx";
 import FormGenerator from "@/components/form/FormGenerator.tsx";
 import DriverTable from './DriverTable.tsx'
 import DatePickerInputWithMonth from "@/components/DatePickerInputWithMonth.tsx";
+import {IconFilterOff} from "@tabler/icons-react";
 
 export default function Driver() {
     const {
-        handleEmployeeChange,
-        inspectionLoading,
+        inspectionGetData,
         getAggregates,
         formData,
         handleInput,
@@ -20,51 +19,64 @@ export default function Driver() {
 
     const aggregates = getAggregates();
 
-    const FIELDS =
-        useMemo(() => [
-            {
-                name: 'employee_id',
-                placeholder: 'Driver',
-                type: 'select',
-                fieldProps: {
-                    url: 'v1/employee/asset',
-                    iterator: {label: 'employee_full_name', value: 'employee_id'},
-                },
-                inputProps: {
-                    w: 300
-                }
+    const FIELDS = [
+        {
+            name: 'employee_id',
+            placeholder: 'Driver',
+            type: 'select',
+            fieldProps: {
+                url: 'v1/employee/asset',
+                iterator: {label: 'employee_full_name', value: 'employee_id'},
             },
-            {
-                name: 'date_range',
-                type: 'component',
-                component: (
-                    <DatePickerInputWithMonth formData={formData} handleInput={handleInput}/>
-                )
+            inputProps: {
+                w: 300
             }
-        ], [])
+        },
+        {
+            name: 'date_range',
+            type: 'component',
+            component: (
+                <DatePickerInputWithMonth
+                    value={formData?.driver?.date_range}
+                    handleInput={(type: string, name: string, value: any) => {
+                        handleInput(type, name, value);
+                        inspectionGetData();
+                    }}
+                    type="driver"
+                />
+            )
+        }
+    ]
+
+    function clearFilter() {
+        handleInput('driver', 'employee_id', null);
+        handleInput('driver', 'date_range', [null, null]);
+        inspectionGetData();
+    }
 
     function customHeader(): ReactNode {
         return (
             <Flex justify='space-between' align='center' flex={1}>
                 <EzText>Driver Resume</EzText>
-                <div style={{width: 'fit-content'}}>
+                <Group gap="xs">
                     <FormGenerator
                         field={FIELDS}
                         structure={[2]}
                         handleInput={(name, value) => {
-                            if (name === 'employee_id') handleEmployeeChange(value);
-                            handleInput('custom_header_driver', name, value)
+                            handleInput('driver', name, value);
+                            inspectionGetData();
                         }}
-                        formData={formData?.['custom_header_driver']}
-                        errors={errors?.['custom_header_driver']}
+                        formData={formData?.driver}
+                        errors={errors?.driver}
                     />
-                </div>
+                    <Tooltip label="Clear Filter">
+                        <ActionIcon onClick={clearFilter}>
+                            <IconFilterOff size={18}/>
+                        </ActionIcon>
+                    </Tooltip>
+                </Group>
             </Flex>
         );
-    }
-
-    if (inspectionLoading && DashboardController.rangeDateValue[0]) {
-        return <EzLoader h={400} />;
     }
 
     return (
@@ -93,7 +105,6 @@ export default function Driver() {
                 </Group>
 
                 <Card>
-                    <EzText pb={16}>Inspections</EzText>
                     <DriverTable/>
                 </Card>
 

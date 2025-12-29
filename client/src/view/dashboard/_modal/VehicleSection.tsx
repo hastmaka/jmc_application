@@ -1,10 +1,9 @@
 import {useEffect} from "react";
 import {ActionIcon, Card, Fieldset, Group, Stack} from "@mantine/core";
 import {IconTrash} from "@tabler/icons-react";
-import EzText from "@/ezMantine/text/EzText.tsx";
 import FormGenerator from "@/components/form/FormGenerator.tsx";
 import {DashboardModalController} from "@/view/dashboard/_modal/DashboardModalController.ts";
-import u from "@/util";
+import {getVehicleField, getMileageFields, getGasFields} from "@/view/dashboard/_modal/vehicleFields.tsx";
 
 interface VehicleSectionProps {
     index: number;
@@ -14,110 +13,53 @@ interface VehicleSectionProps {
 
 export default function VehicleSection({index, inspectionDate, canRemove}: VehicleSectionProps) {
     const {
-        vehicleData,
-        updateVehicle,
+        formData,
+        errors,
+        handleInput,
         removeVehicle,
         vehicleReservationGetData,
         getVehicleTotals,
     } = DashboardModalController;
 
-    const vehicle = vehicleData[index];
+    const vehicleKey = `vehicle${index}`;
+    const vehicle = formData[vehicleKey];
+    const vehicleErrors = errors[vehicleKey] || {};
     const carId = vehicle?.car_car_id;
     const totals = getVehicleTotals(index);
 
-    // Fetch reservations when car changes
+    // Fetch reservations only if not already loaded (edit mode has data pre-loaded)
     useEffect(() => {
-        if (carId && inspectionDate) {
+        if (carId && inspectionDate && !vehicle?.reservationData?.length) {
             vehicleReservationGetData(index, carId, inspectionDate);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [carId, inspectionDate]);
 
-    const VEHICLE_FIELD = [{
-        name: 'car_car_id',
-        label: `Vehicle #${index + 1}`,
-        type: 'select',
-        fieldProps: {
-            url: 'v1/car/asset',
-            iterator: {label: 'car_name', value: 'car_id'},
-        },
-    }];
-
-    const MILEAGE_FIELDS = [
-        {
-            name: 'odometer_start',
-            label: 'Odometer Start',
-            type: 'number',
-            thousandSeparator: ',',
-        },
-        {
-            name: 'odometer_end',
-            label: 'Odometer End',
-            type: 'number',
-            thousandSeparator: ',',
-        },
-        {
-            name: 'total_miles',
-            type: 'component',
-            component: (
-                <Group miw={120} pt={24} wrap="nowrap" gap={4} flex={1}>
-                    <EzText size="xl">Total:</EzText>
-                    <EzText size="xl" fw="bold">
-                        {totals.totalMiles > 0 ? `${u.formatMoney(totals.totalMiles, false)} mi` : '-'}
-                    </EzText>
-                </Group>
-            ),
-        },
-    ];
-
-    const GAS_FIELDS = [
-        {
-            name: 'gas_gallons',
-            label: 'Gallons',
-            type: 'number',
-            decimalScale: 3,
-        },
-        {
-            name: 'gas_cost',
-            label: 'Cost ($)',
-            type: 'number',
-            leftSection: '$',
-            decimalScale: 2,
-        },
-        {
-            name: 'price_per_gallon',
-            type: 'component',
-            component: (
-                <Group miw={120} pt={24} wrap="nowrap" gap={4} flex={1}>
-                    <EzText size="xl">$/gal:</EzText>
-                    <EzText size="xl" fw="bold">
-                        {parseFloat(totals.pricePerGallon) > 0 ? u.formatMoney(totals.pricePerGallon) : '-'}
-                    </EzText>
-                </Group>
-            ),
-        },
-    ];
+    const VEHICLE_FIELD = getVehicleField(index);
+    const MILEAGE_FIELDS = getMileageFields(totals);
+    const GAS_FIELDS = getGasFields(totals);
 
     const handleVehicleInput = (name: string, value: any) => {
-        updateVehicle(index, name, value);
+        handleInput(vehicleKey, name, value);
     };
 
     return (
         <Card withBorder shadow="none" p="sm">
             <Stack gap={8}>
-                <Group justify="space-between" gap={4}>
+                <Group justify="space-between" gap={16}>
                     <FormGenerator
                         field={VEHICLE_FIELD}
                         structure={[1]}
                         handleInput={handleVehicleInput}
                         formData={vehicle}
-                        errors={{}}
+                        errors={vehicleErrors}
                     />
                     {canRemove && (
                         <ActionIcon
-                            variant="light"
                             color="red"
                             onClick={() => removeVehicle(index)}
                             mt={24}
+                            size={34}
                         >
                             <IconTrash size={16} />
                         </ActionIcon>
@@ -130,7 +72,7 @@ export default function VehicleSection({index, inspectionDate, canRemove}: Vehic
                         structure={[3]}
                         handleInput={handleVehicleInput}
                         formData={vehicle}
-                        errors={{}}
+                        errors={vehicleErrors}
                     />
                 </Fieldset>
 
@@ -140,7 +82,7 @@ export default function VehicleSection({index, inspectionDate, canRemove}: Vehic
                         structure={[3]}
                         handleInput={handleVehicleInput}
                         formData={vehicle}
-                        errors={{}}
+                        errors={vehicleErrors}
                     />
                 </Fieldset>
             </Stack>

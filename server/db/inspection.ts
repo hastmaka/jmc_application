@@ -34,7 +34,7 @@ export default function (sequelize: Sequelize): ModelStatic<Model> {
         inspection_breaks: {
             type: DataTypes.JSON,
             allowNull: true,
-            comment: '[{start: "10:30", end: "11:00", initial: "JG"}, ...]'
+            comment: '[{start: "10:30", end: "11:00"}, ...]'
         },
 
         // Audit

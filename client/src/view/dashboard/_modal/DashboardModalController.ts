@@ -12,7 +12,7 @@ import {getModel} from "@/api/models";
  *
  * State:
  * - currentInspectionId: ID of inspection being edited (null for create mode)
- * - breaks: Array of break entries {start, end, initial}
+ * - breaks: Array of break entries {start, end}
  * - vehicleData: Array of vehicles with mileage, gas, and selected reservations
  *
  * Methods are grouped by functionality:
@@ -24,57 +24,100 @@ import {getModel} from "@/api/models";
  * - Computed/Getters: getVehicleTotals, getCombinedReservations, getReservationTotals
  */
 
-type VehicleEntry = {
-    car_car_id: string | null;
-    odometer_start: string;
-    odometer_end: string;
-    gas_gallons: string;
-    gas_cost: string;
-    reservationData: any[];
-    selectedReservationIds: number[];
-    reservationLoading: boolean;
-};
+function buildVehiclePayload(v: any) {
+    if (!v) return null;
+    return {
+        car_car_id: v.car_car_id,
+        inspection_vehicle_odometer_start: v.inspection_vehicle_odometer_start ? parseInt(v.inspection_vehicle_odometer_start) : null,
+        inspection_vehicle_odometer_end: v.inspection_vehicle_odometer_end ? parseInt(v.inspection_vehicle_odometer_end) : null,
+        inspection_vehicle_gas_gallons: v.inspection_vehicle_gas_gallons ? parseInt(v.inspection_vehicle_gas_gallons) : null,
+        inspection_vehicle_gas_cost: v.inspection_vehicle_gas_cost ? Math.round(parseFloat(v.inspection_vehicle_gas_cost) * 100) : null,
+        inspection_vehicle_reservation_ids: v.inspection_vehicle_reservation_ids?.length > 0 ? v.inspection_vehicle_reservation_ids : null,
+    };
+}
 
-const createEmptyVehicle = (): VehicleEntry => ({
-    car_car_id: null,
-    odometer_start: '',
-    odometer_end: '',
-    gas_gallons: '',
-    gas_cost: '',
-    reservationData: [],
-    selectedReservationIds: [],
-    reservationLoading: false,
-});
+function buildVehiclesPayloadFromFormData(formData: any, vehicleCount: number) {
+    const vehicles = [];
+    for (let i = 0; i < vehicleCount; i++) {
+        const v = formData?.[`vehicle${i}`];
+        if (v?.car_car_id) {
+            vehicles.push(buildVehiclePayload(v));
+        }
+    }
+    return vehicles;
+}
+
+function isVehiclesDirty(formData: any, vehicleCount: number, originalPayload: any[] | null): boolean {
+    if (!originalPayload) return true;
+    const currentPayload = buildVehiclesPayloadFromFormData(formData, vehicleCount);
+    return JSON.stringify(currentPayload) !== JSON.stringify(originalPayload);
+}
+
+function buildBreaksPayloadFromFormData(formData: any, breakCount: number) {
+    const breaks = [];
+    for (let i = 0; i < breakCount; i++) {
+        const b = formData?.[`break${i}`];
+        if (b?.start || b?.end) {
+            breaks.push({ start: b.start || '', end: b.end || '' });
+        }
+    }
+    return breaks;
+}
+
+function isBreaksDirty(formData: any, breakCount: number, originalPayload: any[] | null): boolean {
+    if (!originalPayload) return true;
+    const currentPayload = buildBreaksPayloadFromFormData(formData, breakCount);
+    return JSON.stringify(currentPayload) !== JSON.stringify(originalPayload);
+}
 
 export const DashboardModalController: SignalType<any, any> =
     new SignalController({
-        manualReset: ['vehicleData'],
         currentInspectionId: null as number | null,
-        breaks: [],
-        vehicleData: [createEmptyVehicle()],
+        breakCount: 0,
+        vehicleCount: 1,
+        originalBreakPayload: null as any[] | null,
+        originalVehiclePayload: null as any[] | null,
+        inspectionDetailData: null as any,
+        inspectionDetailLoading: false,
         editMap: {
             inspection: async function(fields: string[], id: number) {
                 const response = await FetchApi(`v1/inspection/${id}`);
                 const inspection = new (getModel('inspection'))(response.data);
                 DashboardModalController.fields = fields;
                 DashboardModalController.populateForm('inspection', fields, inspection);
-                DashboardModalController.breaks = response.data?.inspection_breaks || [];
+
+                // Populate formData for each break
+                const breaks = response.data?.inspection_breaks || [];
+                DashboardModalController.breakCount = breaks.length;
+                breaks.forEach((b: any, index: number) => {
+                    DashboardModalController.formData[`break${index}`] = { start: b.start || '', end: b.end || '' };
+                });
+                // Store original payload for dirty checking
+                DashboardModalController.originalBreakPayload = buildBreaksPayloadFromFormData(
+                    DashboardModalController.formData,
+                    breaks.length
+                );
 
                 const vehicles = response.data?.inspection_vehicles || [];
-                if (vehicles.length > 0) {
-                    DashboardModalController.vehicleData = vehicles.map((v: any) => ({
-                        car_car_id: v.car_car_id,
-                        odometer_start: v.inspection_vehicle_odometer_start?.toString() || '',
-                        odometer_end: v.inspection_vehicle_odometer_end?.toString() || '',
-                        gas_gallons: v.inspection_vehicle_gas_gallons?.toString() || '',
-                        gas_cost: v.inspection_vehicle_gas_cost?.toString() || '',
-                        reservationData: [],
-                        selectedReservationIds: v.inspection_vehicle_reservation_ids || [],
+                DashboardModalController.vehicleCount = vehicles.length || 1;
+
+                // Populate formData for each vehicle
+                vehicles.forEach((v: any, index: number) => {
+                    const vehicleModel = new (getModel('inspectionVehicle'))(v);
+                    DashboardModalController.formData[`vehicle${index}`] = {
+                        ...vehicleModel,
+                        car_car_id: v.car_car_id?.toString(),
+                        inspection_vehicle_reservation_ids: vehicleModel.inspection_vehicle_reservation_ids || [],
+                        reservationData: (v.vehicle_reservations || []).map((r: any) => new (getModel('reservation'))(r)),
                         reservationLoading: false,
-                    }));
-                } else {
-                    DashboardModalController.vehicleData = [createEmptyVehicle()];
-                }
+                    };
+                });
+
+                // Store original payload for dirty checking
+                DashboardModalController.originalVehiclePayload = buildVehiclesPayloadFromFormData(
+                    DashboardModalController.formData,
+                    vehicles.length
+                );
             }
         }
     }, {
@@ -87,13 +130,22 @@ export const DashboardModalController: SignalType<any, any> =
         setCurrentInspectionId: function(this: any, inspectionId?: number) {
             this.currentInspectionId = inspectionId || null;
         },
-
         /** Resets all modal state to initial values */
         clearModalState: function(this: any) {
-            this.breaks = [];
             this.currentInspectionId = null;
-            this.vehicleData = [createEmptyVehicle()];
+            this.breakCount = 0;
+            this.vehicleCount = 1;
+            this.originalBreakPayload = null;
+            this.originalVehiclePayload = null;
+            this.inspectionDetailData = null;
+            this.inspectionDetailLoading = false;
             this.resetState();
+        },
+        /** Fetches inspection details for read-only view */
+        inspectionDetailGetData: async function(this: any, inspectionId: number) {
+            const response = await FetchApi(`v1/inspection/${inspectionId}`);
+            this.inspectionDetailData = response.data;
+            this.inspectionDetailLoading = false;
         },
 
         // ═══════════════════════════════════════════════════════════════════
@@ -103,20 +155,17 @@ export const DashboardModalController: SignalType<any, any> =
 
         /** Adds a new empty vehicle entry */
         addVehicle: function(this: any) {
-            this.vehicleData = [...this.vehicleData, createEmptyVehicle()];
+            this.vehicleCount += 1;
         },
-
         /** Removes a vehicle by index (minimum 1 vehicle required) */
         removeVehicle: function(this: any, index: number) {
-            if (this.vehicleData.length <= 1) return;
-            this.vehicleData = this.vehicleData.filter((_: any, i: number) => i !== index);
-        },
-
-        /** Updates a specific field on a vehicle entry */
-        updateVehicle: function(this: any, index: number, field: string, value: any) {
-            const newVehicleData = [...this.vehicleData];
-            newVehicleData[index] = { ...newVehicleData[index], [field]: value };
-            this.vehicleData = newVehicleData;
+            if (this.vehicleCount <= 1) return;
+            // Shift formData keys down after removal
+            for (let i = index; i < this.vehicleCount - 1; i++) {
+                this.formData[`vehicle${i}`] = this.formData[`vehicle${i + 1}`];
+            }
+            delete this.formData[`vehicle${this.vehicleCount - 1}`];
+            this.vehicleCount -= 1;
         },
 
         // ═══════════════════════════════════════════════════════════════════
@@ -126,74 +175,79 @@ export const DashboardModalController: SignalType<any, any> =
 
         /** Fetches reservations for a vehicle based on car and date */
         vehicleReservationGetData: async function(this: any, index: number, carId: number, date: string) {
+            const vehicleKey = `vehicle${index}`;
             if (!carId || !date) {
-                this.updateVehicle(index, 'reservationData', []);
-                this.updateVehicle(index, 'selectedReservationIds', []);
+                this.handleInput(vehicleKey, 'reservationData', []);
+                this.handleInput(vehicleKey, 'inspection_vehicle_reservation_ids', []);
                 return;
             }
 
-            this.updateVehicle(index, 'reservationLoading', true);
+            const vehicle = this.formData[vehicleKey];
+            const existingIds = vehicle?.inspection_vehicle_reservation_ids || [];
+
+            this.handleInput(vehicleKey, 'reservationLoading', true);
 
             const filters = JSON.stringify([
                 { fieldName: 'car_car_id', operator: '=', value: carId },
-                { fieldName: 'reservation_date', operator: '=', value: date }
+                { fieldName: 'reservation_date', operator: '=', value: date },
+                { fieldName: 'reservation_status', operator: '=', value: 7 }
             ]);
 
             const response = await FetchApi('v1/reservation', undefined, null, { filters });
 
             if (response.success) {
-                const reservations = response.data.map((r: any) => new (getModel('reservation'))(r));
-                this.updateVehicle(index, 'reservationData', reservations);
-                this.updateVehicle(index, 'selectedReservationIds', reservations.map((r: any) => r.get('reservation_id')));
+                const reservations = response.data.map((r: any) =>
+                    new (getModel('reservation'))(r));
+                this.handleInput(vehicleKey, 'reservationData', reservations);
+                // Preserve existing selection in edit mode, otherwise select all
+                if (existingIds.length === 0) {
+                    this.handleInput(vehicleKey, 'inspection_vehicle_reservation_ids', reservations.map((r: any) => r.reservation_id));
+                }
             } else {
-                this.updateVehicle(index, 'reservationData', []);
-                this.updateVehicle(index, 'selectedReservationIds', []);
+                this.handleInput(vehicleKey, 'reservationData', []);
+                this.handleInput(vehicleKey, 'inspection_vehicle_reservation_ids', []);
             }
 
-            this.updateVehicle(index, 'reservationLoading', false);
+            this.handleInput(vehicleKey, 'reservationLoading', false);
         },
-
         /** Toggles selection of a single reservation */
         toggleVehicleReservation: function(this: any, vehicleIndex: number, reservationId: number) {
-            const vehicle = this.vehicleData[vehicleIndex];
-            const current = [...vehicle.selectedReservationIds];
-            const index = current.indexOf(reservationId);
+            const vehicleKey = `vehicle${vehicleIndex}`;
+            const vehicle = this.formData[vehicleKey];
+            const current = [...(vehicle?.inspection_vehicle_reservation_ids || [])];
+            const idx = current.indexOf(reservationId);
 
-            if (index === -1) {
+            if (idx === -1) {
                 current.push(reservationId);
             } else {
-                current.splice(index, 1);
+                current.splice(idx, 1);
             }
 
-            this.updateVehicle(vehicleIndex, 'selectedReservationIds', current);
+            this.handleInput(vehicleKey, 'inspection_vehicle_reservation_ids', current);
         },
-
         /** Selects all reservations for a specific vehicle */
         selectAllVehicleReservation: function(this: any, vehicleIndex: number) {
-            const vehicle = this.vehicleData[vehicleIndex];
-            const allIds = vehicle.reservationData.map((r: any) => r.get('reservation_id'));
-            this.updateVehicle(vehicleIndex, 'selectedReservationIds', allIds);
+            const vehicleKey = `vehicle${vehicleIndex}`;
+            const vehicle = this.formData[vehicleKey];
+            const allIds = (vehicle?.reservationData || []).map((r: any) => r.reservation_id);
+            this.handleInput(vehicleKey, 'inspection_vehicle_reservation_ids', allIds);
         },
-
         /** Deselects all reservations for a specific vehicle */
         deselectAllVehicleReservation: function(this: any, vehicleIndex: number) {
-            this.updateVehicle(vehicleIndex, 'selectedReservationIds', []);
+            const vehicleKey = `vehicle${vehicleIndex}`;
+            this.handleInput(vehicleKey, 'inspection_vehicle_reservation_ids', []);
         },
-
         /** Selects all reservations across all vehicles */
         selectAllReservations: function(this: any) {
-            if (!this.vehicleData) return;
-            this.vehicleData.forEach((_: any, index: number) => {
-                this.selectAllVehicleReservation(index);
-            });
+            for (let i = 0; i < this.vehicleCount; i++) {
+                this.selectAllVehicleReservation(i);
+            }
         },
-
         /** Deselects all reservations across all vehicles */
         deselectAllReservations: function(this: any) {
-            if (!this.vehicleData) return;
-            this.vehicleData.forEach((_: any, index: number) => {
-                this.deselectAllVehicleReservation(index);
-            });
+            for (let i = 0; i < this.vehicleCount; i++) {
+                this.deselectAllVehicleReservation(i);
+            }
         },
 
         // ═══════════════════════════════════════════════════════════════════
@@ -203,48 +257,36 @@ export const DashboardModalController: SignalType<any, any> =
 
         /** Adds a new empty break entry */
         addBreak: function(this: any) {
-            this.breaks = [...this.breaks, {start: '', end: '', initial: ''}];
+            this.formData[`break${this.breakCount}`] = { start: '', end: '' };
+            this.breakCount += 1;
         },
-
         /** Updates a specific field on a break entry */
         updateBreak: function(this: any, index: number, field: string, value: string) {
-            const newBreaks = [...this.breaks];
-            newBreaks[index] = {...newBreaks[index], [field]: value};
-            this.breaks = newBreaks;
+            this.handleInput(`break${index}`, field, value);
         },
-
         /** Removes a break entry by index */
         removeBreak: function(this: any, index: number) {
-            this.breaks = this.breaks.filter((_: any, i: number) => i !== index);
+            if (this.breakCount <= 0) return;
+            for (let i = index; i < this.breakCount - 1; i++) {
+                this.formData[`break${i}`] = this.formData[`break${i + 1}`];
+            }
+            delete this.formData[`break${this.breakCount - 1}`];
+            this.breakCount -= 1;
         },
 
         // ═══════════════════════════════════════════════════════════════════
-        // API OPERATIONS
+        // INSPECTION CRUD
         // Methods for saving, editing, and deleting inspections
         // ═══════════════════════════════════════════════════════════════════
 
-        /** Builds the vehicles array payload for API requests */
-        buildVehiclesPayload: function(this: any) {
-            if (!this.vehicleData) return [];
-            return this.vehicleData
-                .filter((v: VehicleEntry) => v.car_car_id)
-                .map((v: VehicleEntry) => ({
-                    car_car_id: v.car_car_id,
-                    inspection_vehicle_odometer_start: v.odometer_start ? parseInt(v.odometer_start) : null,
-                    inspection_vehicle_odometer_end: v.odometer_end ? parseInt(v.odometer_end) : null,
-                    inspection_vehicle_gas_gallons: v.gas_gallons ? parseFloat(v.gas_gallons) : null,
-                    inspection_vehicle_gas_cost: v.gas_cost ? parseFloat(v.gas_cost) : null,
-                    inspection_vehicle_reservation_ids: v.selectedReservationIds.length > 0 ? v.selectedReservationIds : null,
-                }));
-        },
-
         /** Creates a new inspection with vehicles */
-        handleSaveInspection: async function(this: any, modalId: string) {
-            const vehicles = this.buildVehiclesPayload();
+        handleSaveInspection: async function(this: any, modalId: string, onExistingFound?: (existingId: number) => void) {
+            const vehicles = buildVehiclesPayloadFromFormData(this.formData, this.vehicleCount);
+            const breaks = buildBreaksPayloadFromFormData(this.formData, this.breakCount);
 
             const payload = {
                 ...this.formData.inspection,
-                inspection_breaks: this.breaks.length ? this.breaks : null,
+                inspection_breaks: breaks.length ? breaks : null,
                 vehicles,
             };
 
@@ -254,20 +296,30 @@ export const DashboardModalController: SignalType<any, any> =
                 await DashboardController.inspectionGetData();
                 this.clearModalState();
                 window.closeModal(modalId);
+            } else if (response.existingId && onExistingFound) {
+                // Inspection already exists, let caller handle it
+                onExistingFound(response.existingId);
             } else {
                 throw response;
             }
         },
-
         /** Updates an existing inspection with vehicles */
         handleEditInspection: async function(this: any, modalId: string) {
-            const vehicles = this.buildVehiclesPayload();
-
-            const payload = {
+            const payload: Record<string, any> = {
+                inspection_id: this.currentInspectionId,
                 ...this.dirtyFields,
-                inspection_breaks: this.breaks.length ? this.breaks : null,
-                vehicles,
             };
+
+            // Only include breaks if they changed
+            if (isBreaksDirty(this.formData, this.breakCount, this.originalBreakPayload)) {
+                const breaks = buildBreaksPayloadFromFormData(this.formData, this.breakCount);
+                payload.inspection_breaks = breaks.length ? breaks : null;
+            }
+
+            // Only include vehicles if they changed
+            if (isVehiclesDirty(this.formData, this.vehicleCount, this.originalVehiclePayload)) {
+                payload.vehicles = buildVehiclesPayloadFromFormData(this.formData, this.vehicleCount);
+            }
 
             const response = await FetchApi('v1/inspection', 'PUT', payload);
 
@@ -279,7 +331,6 @@ export const DashboardModalController: SignalType<any, any> =
                 throw response;
             }
         },
-
         /** Deletes an inspection by ID */
         handleDeleteInspection: async function(this: any, inspectionId: number, modalId: string) {
             const response = await FetchApi(`v1/inspection/${inspectionId}`, 'DELETE');
@@ -300,15 +351,15 @@ export const DashboardModalController: SignalType<any, any> =
 
         /** Calculates totals for a specific vehicle (miles, $/gallon) */
         getVehicleTotals: function(this: any, vehicleIndex: number) {
-            if (!this.vehicleData || !this.vehicleData[vehicleIndex]) {
+            const vehicle = this.formData[`vehicle${vehicleIndex}`];
+            if (!vehicle) {
                 return { totalMiles: 0, pricePerGallon: '0.00' };
             }
-            const vehicle = this.vehicleData[vehicleIndex];
-            const odometerStart = parseInt(vehicle.odometer_start) || 0;
-            const odometerEnd = parseInt(vehicle.odometer_end) || 0;
+            const odometerStart = parseInt(vehicle.inspection_vehicle_odometer_start) || 0;
+            const odometerEnd = parseInt(vehicle.inspection_vehicle_odometer_end) || 0;
             const totalMiles = odometerEnd - odometerStart;
-            const gasCost = parseFloat(vehicle.gas_cost) || 0;
-            const gasGallons = parseFloat(vehicle.gas_gallons) || 0;
+            const gasCost = parseFloat(vehicle.inspection_vehicle_gas_cost) || 0;
+            const gasGallons = parseFloat(vehicle.inspection_vehicle_gas_gallons) || 0;
             const pricePerGallon = gasGallons > 0 ? gasCost / gasGallons : 0;
 
             return {
@@ -316,55 +367,53 @@ export const DashboardModalController: SignalType<any, any> =
                 pricePerGallon: pricePerGallon.toFixed(2)
             };
         },
-
         /** Combines reservations from all vehicles into a single array */
         getCombinedReservations: function(this: any) {
             const combined: any[] = [];
             let isLoading = false;
             let hasCarAndDate = false;
 
-            if (!this.vehicleData) {
-                return { combined, isLoading, hasCarAndDate };
-            }
+            for (let i = 0; i < this.vehicleCount; i++) {
+                const vehicle = this.formData[`vehicle${i}`];
+                if (!vehicle) continue;
 
-            this.vehicleData.forEach((vehicle: any, vehicleIndex: number) => {
                 if (vehicle.reservationLoading) isLoading = true;
                 if (vehicle.car_car_id) hasCarAndDate = true;
 
                 vehicle.reservationData?.forEach((reservation: any) => {
                     combined.push({
-                        _vehicleIndex: vehicleIndex,
-                        _vehicleNumber: vehicleIndex + 1,
-                        _isSelected: vehicle.selectedReservationIds?.includes(reservation.get('reservation_id')),
-                        reservation_id: reservation.get('reservation_id'),
-                        reservation_charter_order: reservation.get('reservation_charter_order'),
-                        reservation_time: reservation.get('reservation_time'),
-                        reservation_passenger_name: reservation.get('reservation_passenger_name'),
-                        reservation_pickup_location: reservation.get('reservation_pickup_location'),
-                        reservation_dropoff_location: reservation.get('reservation_dropoff_location'),
-                        reservation_total: reservation.get('reservation_total'),
+                        ...reservation,
+                        _vehicleIndex: i,
+                        _vehicleNumber: i + 1,
+                        _isSelected: vehicle.inspection_vehicle_reservation_ids?.includes(reservation.reservation_id),
                     });
                 });
-            });
+            }
 
             return { combined, isLoading, hasCarAndDate };
         },
-
         /** Calculates reservation totals (selected count, grand total) */
         getReservationTotals: function(this: any) {
-            const { combined } = this.getCombinedReservations();
+            let totalReservations = 0;
+            let grandTotal = 0;
+            let totalSelected = 0;
 
-            if (!this.vehicleData) {
-                return { totalSelected: 0, grandTotal: 0, totalReservations: 0 };
+            for (let i = 0; i < this.vehicleCount; i++) {
+                const vehicle = this.formData[`vehicle${i}`];
+                if (!vehicle) continue;
+
+                const reservations = vehicle.reservationData || [];
+                const selectedIds = vehicle.inspection_vehicle_reservation_ids || [];
+                totalReservations += reservations.length;
+                totalSelected += selectedIds.length;
+
+                reservations.forEach((r: any) => {
+                    if (selectedIds.includes(r.reservation_id)) {
+                        grandTotal += parseFloat(r.reservation_total) || 0;
+                    }
+                });
             }
 
-            const totalSelected = this.vehicleData.reduce((sum: number, v: any) =>
-                sum + (v.selectedReservationIds?.length || 0), 0);
-
-            const grandTotal = combined
-                .filter((r: any) => r._isSelected)
-                .reduce((sum: number, r: any) => sum + (parseFloat(r.reservation_total) || 0), 0);
-
-            return { totalSelected, grandTotal, totalReservations: combined.length };
+            return { totalSelected, grandTotal, totalReservations };
         }
     }).signal

@@ -10,6 +10,8 @@ import moment from "moment";
 
 export default function ReservationsSection() {
     const {
+        formData,
+        vehicleCount,
         toggleVehicleReservation,
         selectAllReservations,
         deselectAllReservations,
@@ -17,6 +19,9 @@ export default function ReservationsSection() {
         getReservationTotals,
     } = DashboardModalController;
 
+    // Read formData and vehicleCount to subscribe to changes
+    void formData;
+    void vehicleCount;
     const {combined, isLoading, hasCarAndDate} = getCombinedReservations();
     const {totalSelected, grandTotal, totalReservations} = getReservationTotals();
 
@@ -58,7 +63,7 @@ export default function ReservationsSection() {
             <Stack gap={8}>
                 <Group justify="space-between" mih={40}>
                     <EzText fw="bold">
-                        Trips ({hasCarAndDate ? totalSelected : 0}/{hasCarAndDate ? totalReservations : 0} selected)
+                        Reservations ({hasCarAndDate ? totalSelected : 0}/{hasCarAndDate ? totalReservations : 0} selected)
                     </EzText>
                     {totalReservations > 0 && (
                         <EzGroupBtn

@@ -27,20 +27,20 @@ export default function (sequelize: Sequelize): ModelStatic<Model> {
         // Mileage
         inspection_vehicle_odometer_start: {
             type: DataTypes.INTEGER,
-            allowNull: true,
+            allowNull: false,
         },
         inspection_vehicle_odometer_end: {
             type: DataTypes.INTEGER,
-            allowNull: true,
+            allowNull: false,
         },
 
         // Gas Log
         inspection_vehicle_gas_gallons: {
-            type: DataTypes.DECIMAL(10, 3),
+            type: DataTypes.INTEGER,
             allowNull: true,
         },
         inspection_vehicle_gas_cost: {
-            type: DataTypes.DECIMAL(10, 2),
+            type: DataTypes.INTEGER,
             allowNull: true,
         },
 

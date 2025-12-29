@@ -1,37 +1,17 @@
-import React, {useLayoutEffect, useMemo, useRef} from "react";
-import {ActionIcon, Button, Card, Fieldset, Flex, Group, SimpleGrid, Stack, TextInput} from "@mantine/core";
+import {useLayoutEffect, useMemo, useState} from "react";
+import {ActionIcon, Button, Card, Fieldset, Flex, Group, SimpleGrid, Stack} from "@mantine/core";
 import FormGenerator from "@/components/form/FormGenerator.tsx";
 import EzText from "@/ezMantine/text/EzText.tsx";
 import {DashboardModalController} from "@/view/dashboard/_modal/DashboardModalController.ts";
-import {IconClock, IconPlus, IconTrash} from "@tabler/icons-react";
-import {TimeInput} from "@mantine/dates";
+import { IconPlus, IconTrash} from "@tabler/icons-react";
 import EzScroll from "@/ezMantine/scroll/EzScroll.tsx";
 import SaveCancelDeleteBtns from "@/components/SaveCancelDeleteBtns.tsx";
 import VehicleSection from "@/view/dashboard/_modal/VehicleSection.tsx";
 import ReservationsSection from "@/view/dashboard/_modal/ReservationsSection.tsx";
-
-function TimeInputWithPicker({label, value, onChange, style}: {
-    label?: string,
-    value: string,
-    onChange: (e: any) => void,
-    style?: React.CSSProperties
-}) {
-    const ref = useRef<HTMLInputElement>(null);
-    return (
-        <TimeInput
-            label={label}
-            value={value}
-            onChange={onChange}
-            style={style}
-            ref={ref}
-            rightSection={
-                <ActionIcon variant="subtle" color="gray" onClick={() => ref.current?.showPicker()}>
-                    <IconClock size={16} stroke={1.5}/>
-                </ActionIcon>
-            }
-        />
-    );
-}
+import {getVehicleRequiredFields} from "@/view/dashboard/_modal/vehicleFields.tsx";
+import TimeInputWithPicker from "@/components/TimeInputWithPicker.tsx";
+import EzLoader from "@/ezMantine/loader/EzLoader.tsx";
+import GenericModal from "@/components/modal/GenericModal.tsx";
 
 export default function DriverReportModal({
     inspectionId,
@@ -45,23 +25,21 @@ export default function DriverReportModal({
         formData,
         handleInput,
         errors,
+        modal,
         checkRequired,
         handleEditInspection,
         handleSaveInspection,
         resetState,
-        breaks,
+        breakCount,
         addBreak,
         updateBreak,
         removeBreak,
-        vehicleData,
+        vehicleCount,
         addVehicle,
     } = DashboardModalController;
 
+    const [submitted, setSubmitted] = useState(false);
     const inspectionDate = formData?.inspection?.inspection_date;
-
-    useLayoutEffect(() => {
-        if (inspectionId) { modalData('inspection', FIELDS, +inspectionId) }
-    }, [inspectionId]);
 
     const FIELDS = useMemo(() => [
         {
@@ -84,11 +62,13 @@ export default function DriverReportModal({
             name: 'inspection_start_time',
             label: 'Start Time',
             type: 'time',
+            required: true,
         },
         {
             name: 'inspection_end_time',
             label: 'End Time',
             type: 'time',
+            required: true,
         },
         {
             name: 'inspection_notes',
@@ -97,25 +77,106 @@ export default function DriverReportModal({
         },
     ], []);
 
+    useLayoutEffect(() => {
+        if (inspectionId) { modalData('inspection', FIELDS, +inspectionId) }
+    }, [inspectionId]);
+
     async function handleSubmit() {
-        if (checkRequired('inspection', FIELDS)) {
+        setSubmitted(true);
+
+        // Validate breaks - if added, must have start and end
+        let hasInvalidBreaks = false;
+        for (let i = 0; i < breakCount; i++) {
+            const brk = formData[`break${i}`];
+            if (!brk?.start || !brk?.end) hasInvalidBreaks = true;
+        }
+
+        // Validate vehicles - check all required fields for each vehicle
+        let hasValidVehicles = true;
+        for (let i = 0; i < vehicleCount; i++) {
+            if (!checkRequired(`vehicle${i}`, getVehicleRequiredFields(i))) hasValidVehicles = false;
+        }
+
+        // Validate inspection fields
+        const hasValidInspection = checkRequired('inspection', FIELDS);
+
+        // Only proceed if all validations pass
+        if (hasInvalidBreaks || !hasValidVehicles || !hasValidInspection) return;
+
+        // Check if at least one reservation is selected
+        let totalSelectedReservations = 0;
+        for (let i = 0; i < vehicleCount; i++) {
+            totalSelectedReservations += formData[`vehicle${i}`]?.inspection_vehicle_reservation_ids?.length || 0;
+        }
+        if (totalSelectedReservations === 0) {
+            return window.toast.W('Please select at least one reservation.');
+        }
+
+        if (inspectionId) {
+            // Edit mode
             return await window.toast.U({
                 modalId,
                 id: {
-                    title: `${inspectionId ? 'Editing' : 'Creating'} inspection.`,
+                    title: 'Editing inspection.',
                     message: 'Please wait...',
                 },
                 update: {
-                    success: `Inspection ${inspectionId ? 'updated' : 'created'} successfully.`,
-                    error: `Failed to ${inspectionId ? 'update' : 'create'} inspection.`
+                    success: 'Inspection updated successfully.',
+                    error: 'Failed to update inspection.'
                 },
-                cb: async () => {
-                    if (inspectionId) return await handleEditInspection(modalId);
-                    await handleSaveInspection(modalId);
-                }
+                cb: async () => await handleEditInspection(modalId)
             });
         }
+
+        // Create mode - handle existing inspection case
+        return await window.toast.U({
+            modalId,
+            id: {
+                title: 'Creating inspection.',
+                message: 'Please wait...',
+            },
+            update: {
+                success: 'Inspection created successfully.',
+                error: 'Failed to create inspection.'
+            },
+            cb: async () => await handleSaveInspection(modalId, (existingId: any) => {
+                const acceptModal = 'accept-edit-existing-inspection'
+                window.openModal({
+                    modalId: acceptModal,
+                    title: 'Warning',
+                    size: 'sm',
+                    children: (
+                        <GenericModal
+                            cancel={() => {
+                                window.closeModal(acceptModal)
+                                setSubmitted(false);
+                            }}
+                            accept={() => {
+                                window.closeModal(modalId)
+                                window.closeModal(acceptModal)
+                                const _modalId = 'edit-existing-inspection'
+                                window.openModal({
+                                    modalId: _modalId,
+                                    fullScreen: true,
+                                    title: 'Re-Editing Driver Report',
+                                    children: <DriverReportModal modalId={_modalId} inspectionId={existingId}/>,
+                                    onClose: () => {}
+                                })
+                            }}
+                        >
+                            <Stack>
+                                <EzText>An inspection already exists for this driver on this date.</EzText>
+                                <EzText>Want to edit existing inspection?</EzText>
+                            </Stack>
+                        </GenericModal>
+                    ),
+                    onClose: () => {}
+                })
+            })
+        });
     }
+
+    if(modal.loading) return <EzLoader h='100vh'/>
 
     return (
         <Stack flex={1}>
@@ -136,41 +197,42 @@ export default function DriverReportModal({
                         <Stack gap={8}>
                             <Group justify="space-between">
                                 <EzText fw="bold">Break Log</EzText>
-                                <ActionIcon variant="light" onClick={addBreak}>
+                                <ActionIcon onClick={() => { setSubmitted(false); addBreak(); }}>
                                     <IconPlus size={16}/>
                                 </ActionIcon>
                             </Group>
-                            {breaks?.map((brk: any, index: number) => (
-                                <Flex key={index} gap={8} align="flex-end">
-                                    <TimeInputWithPicker
-                                        label={index === 0 ? "Start" : undefined}
-                                        value={brk.start}
-                                        onChange={(e) => updateBreak(index, 'start', e.target.value)}
-                                        style={{flex: 1}}
-                                    />
-                                    <TimeInputWithPicker
-                                        label={index === 0 ? "End" : undefined}
-                                        value={brk.end}
-                                        onChange={(e) => updateBreak(index, 'end', e.target.value)}
-                                        style={{flex: 1}}
-                                    />
-                                    <TextInput
-                                        label={index === 0 ? "Initial" : undefined}
-                                        value={brk.initial}
-                                        onChange={(e) => updateBreak(index, 'initial', e.target.value)}
-                                        style={{flex: 1}}
-                                        maxLength={5}
-                                    />
-                                    <ActionIcon
-                                        variant="light"
-                                        color="red"
-                                        onClick={() => removeBreak(index)}
-                                    >
-                                        <IconTrash size={16}/>
-                                    </ActionIcon>
-                                </Flex>
-                            ))}
-                            {(!breaks || breaks.length === 0) && (
+                            {Array.from({length: breakCount}, (_, index) => {
+                                const brk = formData[`break${index}`] || {};
+                                return (
+                                    <Flex key={index} gap={8} align="flex-end">
+                                        <TimeInputWithPicker
+                                            label={index === 0 ? "Start" : undefined}
+                                            value={brk.start}
+                                            onChange={(e) => updateBreak(index, 'start', e.target.value)}
+                                            style={{flex: 1}}
+                                            required
+                                            error={submitted && !brk.start}
+                                        />
+                                        <TimeInputWithPicker
+                                            label={index === 0 ? "End" : undefined}
+                                            value={brk.end}
+                                            onChange={(e) => updateBreak(index, 'end', e.target.value)}
+                                            style={{flex: 1}}
+                                            required
+                                            error={submitted && !brk.end}
+                                        />
+                                        <ActionIcon
+                                            color="red"
+                                            mb={2}
+                                            size={34}
+                                            onClick={() => removeBreak(index)}
+                                        >
+                                            <IconTrash size={16}/>
+                                        </ActionIcon>
+                                    </Flex>
+                                );
+                            })}
+                            {breakCount === 0 && (
                                 <EzText size="sm" c="dimmed">No breaks added</EzText>
                             )}
                         </Stack>
@@ -180,21 +242,18 @@ export default function DriverReportModal({
                     <Stack gap={8}>
                         <Group justify="space-between">
                             <EzText fw="bold" size="lg">Vehicles</EzText>
-                            <Button
-                                leftSection={<IconPlus size={14} />}
-                                onClick={addVehicle}
-                            >
+                            <Button leftSection={<IconPlus size={14} />} onClick={addVehicle}>
                                 Add Vehicle
                             </Button>
                         </Group>
 
-                        <SimpleGrid cols={vehicleData?.length > 1 ? 2 : 1} spacing="sm">
-                            {vehicleData?.map((_: any, index: number) => (
+                        <SimpleGrid cols={vehicleCount > 1 ? 2 : 1} spacing="sm">
+                            {Array.from({length: vehicleCount}, (_, index) => (
                                 <VehicleSection
                                     key={index}
                                     index={index}
                                     inspectionDate={inspectionDate}
-                                    canRemove={vehicleData.length > 1}
+                                    canRemove={vehicleCount > 1}
                                 />
                             ))}
                         </SimpleGrid>

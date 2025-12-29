@@ -135,20 +135,10 @@ export default function ReservationGridToolbar({
                         fetchEveryTime={false}
                     />
                     <DatePickerInputWithMonth
-                        formData={ReservationController?.rangeDateValue || user?.user_preference.rangeDateValue}
+                        value={ReservationController?.rangeDateValue || user?.user_preference.rangeDateValue}
                         handleInput={(_type, _name, value) => handleDateRangeChange(value)}
+                        type=''
                     />
-                    {/*<DatePickerInput*/}
-                    {/*    w={340}*/}
-                    {/*    type='range'*/}
-                    {/*    clearable*/}
-                    {/*    rightSection={<IconFilter size={18} stroke={1.5} />}*/}
-                    {/*    rightSectionPointerEvents="none"*/}
-                    {/*    placeholder="Date Range Filter"*/}
-                    {/*    allowSingleDateInRange*/}
-                    {/*    value={ReservationController?.rangeDateValue || user?.user_preference.rangeDateValue}*/}
-                    {/*    onChange={handleDateRangeChange}*/}
-                    {/*/>*/}
                     <EzGroupBtn ITEMS={ACTIONBTNS}/>
                 </Group>
             </Group>
