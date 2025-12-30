@@ -1,4 +1,4 @@
-import express, {Request, Response, NextFunction} from 'express';
+import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import http from 'http';
@@ -6,6 +6,8 @@ import bodyParser from 'body-parser';
 import requestIp from 'request-ip';
 import {setupSocketIO} from "./socket/socket.ts";
 import {fileURLToPath} from 'url';
+import {requestLogger} from './middleware/requestLogger.ts';
+import {logger} from './utils/logger.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,11 +33,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Middleware to log every request
-app.use((req: Request, _res: Response, next: NextFunction) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-    next();
-});
+// Request logging middleware
+app.use(requestLogger);
 
 // this is only to check health
 import routes from './routes/index.ts';
@@ -70,5 +69,5 @@ app.use('/api/v1/inspection', Inspection);
 const httpServer = http.createServer(app);
 setupSocketIO(httpServer);
 httpServer.listen(80, () => {
-    console.log('HTTP Server running on http://localhost:80/');
+    logger.info('HTTP Server running on http://localhost:80/');
 });

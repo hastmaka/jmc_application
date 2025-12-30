@@ -54,9 +54,12 @@ class InspectionVehicle extends Ez {
     }
 
     static async deleteByInspectionId(transaction: Transaction | undefined, inspection_id: number, user: any) {
-        const instance = new InspectionVehicle({}, user);
-        return await instance.deleteGeneric(transaction, {
-            inspection_inspection_id: { [Op.eq]: inspection_id }
+        // Force hard delete to avoid unique constraint violation with soft-deleted records
+        // (MySQL doesn't support partial unique indexes with WHERE deleted_at IS NULL)
+        return await models.inspection_vehicle.destroy({
+            where: { inspection_inspection_id: { [Op.eq]: inspection_id } },
+            transaction,
+            force: true // Hard delete
         });
     }
 }

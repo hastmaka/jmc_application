@@ -127,14 +127,14 @@ export default function ManageCar() {
         'car_capacity',
         'car_plate',
         {
-            name: 'car_status',
+            name: 'select_status',
             render: (row: any) => {
                 return (
                     <Group justify="center">
                         <EzMenu
                             trigger='hover'
                             onItemClick={async (item:any) => {
-                                if (item.label !== row.car_status) {
+                                if (item.label !== row.select_status?.label) {
                                     const car_id = row.car_id
                                     return await window.toast.U({
                                         modalId: 'manage-car-modal',
@@ -153,7 +153,7 @@ export default function ManageCar() {
                             target={<IconChartFunnel/>}
                             url='v1/asset/car_status'
                         />
-                        <span>{row.car_status}</span>
+                        <span>{row.select_status?.label}</span>
                     </Group>
                 )
             }

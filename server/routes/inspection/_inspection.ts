@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import Inspection from '../../classes/Inspection.ts'
 import InspectionVehicle from '../../classes/InspectionVehicle.ts'
-import {handleDataToReturn, handleError, manageFilter} from "../../utils/index.js";
+import {handleDataToReturn, handleError, manageFilter, logger} from "../../utils/index.js";
 import models from '../../db/index.ts';
 import {Op, Transaction} from "sequelize";
 
@@ -47,20 +47,34 @@ async function attachAllReservationsToVehicles(inspection: any) {
     const inspectionDate = inspection.inspection_date;
     const vehicles = inspection.inspection_vehicles || [];
 
+    // Collect all car IDs to fetch reservations in one query
+    const carIds = vehicles.map((v: any) => v.car_car_id).filter(Boolean);
+
+    if (carIds.length === 0 || !inspectionDate) return inspection;
+
+    // Fetch all reservations for all cars on this date in one query
+    const reservations = await models.reservation.findAll({
+        where: {
+            car_car_id: { [Op.in]: carIds },
+            reservation_date: inspectionDate,
+            reservation_status: 7
+        }
+    });
+
+    // Group reservations by car_car_id
+    const reservationsByCarId = new Map<number, any[]>();
+    for (const r of reservations) {
+        const carId = r.car_car_id;
+        if (!reservationsByCarId.has(carId)) {
+            reservationsByCarId.set(carId, []);
+        }
+        reservationsByCarId.get(carId)!.push(r.toJSON());
+    }
+
+    // Attach reservations to each vehicle
     for (const vehicle of vehicles) {
         const carId = vehicle.car_car_id;
-        if (!carId || !inspectionDate) continue;
-
-        // Fetch all reservations for this car on this date
-        const reservations = await models.reservation.findAll({
-            where: {
-                car_car_id: carId,
-                reservation_date: inspectionDate,
-                reservation_status: 7
-            }
-        });
-
-        vehicle.dataValues.vehicle_reservations = reservations.map((r: any) => r.toJSON());
+        vehicle.dataValues.vehicle_reservations = reservationsByCarId.get(carId) || [];
     }
 
     return inspection;
@@ -90,7 +104,6 @@ export const _inspection = {
             await attachReservationsToVehicles(inspection);
             res.json(await handleDataToReturn(inspection, req?.authUser?.auth));
         } catch (e: any) {
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -119,7 +132,6 @@ export const _inspection = {
             }
             res.json(await handleDataToReturn(inspection, req?.authUser?.auth));
         } catch (e: any) {
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -147,6 +159,12 @@ export const _inspection = {
 
             await transaction.commit();
 
+            logger.audit('CREATE', {
+                resource: 'inspection',
+                resourceId: inspectionId,
+                userId: req.authUser?.user_id
+            });
+
             res.json(await handleDataToReturn({ inspection_id: inspectionId }, req?.authUser?.auth));
         } catch (e: any) {
             if (transaction) {
@@ -164,6 +182,11 @@ export const _inspection = {
                 });
 
                 if (existing) {
+                    logger.warn('Duplicate inspection attempt', {
+                        existingId: existing.get('inspection_id'),
+                        employeeId: inspectionData.employee_employee_id,
+                        date: inspectionData.inspection_date
+                    });
                     return res.status(409).json({
                         success: false,
                         existingId: existing.get('inspection_id'),
@@ -172,7 +195,6 @@ export const _inspection = {
                 }
             }
 
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -188,28 +210,57 @@ export const _inspection = {
             // Update inspection
             await Inspection.updateInspectionFactory(transaction, inspectionData, req.authUser);
 
-            // Handle vehicles: delete existing and recreate
+            // Handle vehicles: smart update (update existing, delete removed, create new)
             if (vehicles && Array.isArray(vehicles)) {
-                // Delete existing vehicles for this inspection
-                await InspectionVehicle.deleteByInspectionId(transaction, inspectionId, req.authUser);
+                // Get existing vehicle IDs for this inspection
+                const existingVehicles = await models.inspection_vehicle.findAll({
+                    where: { inspection_inspection_id: inspectionId },
+                    attributes: ['inspection_vehicle_id', 'car_car_id'],
+                    transaction
+                });
+                const existingMap = new Map(existingVehicles.map((v: any) => [v.car_car_id, v.inspection_vehicle_id]));
 
-                // Create new vehicles
+                const incomingCarIds = new Set(vehicles.map((v: any) => v.car_car_id));
+
+                // Delete vehicles that are no longer in the list
+                for (const existing of existingVehicles) {
+                    if (!incomingCarIds.has(existing.car_car_id)) {
+                        await InspectionVehicle.deleteInspectionVehicle(transaction, existing.inspection_vehicle_id, req.authUser);
+                    }
+                }
+
+                // Update or create vehicles
                 for (const vehicle of vehicles) {
-                    await InspectionVehicle.createInspectionVehicleFactory(transaction, {
-                        ...vehicle,
-                        inspection_inspection_id: inspectionId
-                    }, req.authUser);
+                    const existingId = existingMap.get(vehicle.car_car_id);
+                    if (existingId) {
+                        // Update existing vehicle
+                        await InspectionVehicle.updateInspectionVehicleFactory(transaction, {
+                            ...vehicle,
+                            inspection_vehicle_id: existingId
+                        }, req.authUser);
+                    } else {
+                        // Create new vehicle
+                        await InspectionVehicle.createInspectionVehicleFactory(transaction, {
+                            ...vehicle,
+                            inspection_inspection_id: inspectionId
+                        }, req.authUser);
+                    }
                 }
             }
 
             await transaction.commit();
+
+            logger.audit('UPDATE', {
+                resource: 'inspection',
+                resourceId: inspectionId,
+                userId: req.authUser?.user_id
+            });
 
             res.json(await handleDataToReturn({}, req?.authUser?.auth));
         } catch (e: any) {
             if (transaction) {
                 await transaction.rollback();
             }
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -227,12 +278,18 @@ export const _inspection = {
             await Inspection.deleteInspection(transaction, +inspection_id, req?.authUser?.auth);
 
             await transaction.commit();
+
+            logger.audit('DELETE', {
+                resource: 'inspection',
+                resourceId: +inspection_id,
+                userId: req.authUser?.user_id
+            });
+
             res.json(await handleDataToReturn({}, req?.authUser?.auth));
         } catch (e: any) {
             if (transaction) {
                 await transaction.rollback();
             }
-            console.log(e.message);
             handleError(res, e)
         }
     },

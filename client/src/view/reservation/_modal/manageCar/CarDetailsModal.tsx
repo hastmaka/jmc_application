@@ -34,7 +34,7 @@ export default function CarDetailsModal({carId}: {carId: number}) {
         Vin: carDetailData?.car_vin,
         Color: carDetailData?.car_color,
         Year: carDetailData?.car_year.substring(0,4),
-        Type: carDetailData?.car_type,
+        Type: carDetailData?.select_type?.label,
     }
     const data2 = {
         Plate: carDetailData?.car_plate,

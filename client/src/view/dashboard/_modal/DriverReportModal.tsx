@@ -43,7 +43,7 @@ export default function DriverReportModal({
 
     const FIELDS = useMemo(() => [
         {
-            name: 'employee_employee_id',
+            name: 'select_employee',
             label: 'Driver',
             type: 'select',
             required: true,

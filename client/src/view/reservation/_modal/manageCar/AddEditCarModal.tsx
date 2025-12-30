@@ -20,7 +20,7 @@ export default function AddEditCarModal({
         formData,
         errors,
         handleInput,
-        // checkRequired,
+        checkRequired,
         modal,
         addCarDocument,
         removeCarDocument,
@@ -73,7 +73,7 @@ export default function AddEditCarModal({
                 label: 'Vin',
             },
             {
-                name: 'car_status',
+                name: 'select_status',
                 label: 'Status',
                 type: 'select',
                 fieldProps: {
@@ -81,7 +81,7 @@ export default function AddEditCarModal({
                 }
             },
             {
-                name: 'car_type',
+                name: 'select_type',
                 label: 'Type',
                 type: 'select',
                 fieldProps: {
@@ -178,7 +178,7 @@ export default function AddEditCarModal({
     }
 
     async function handleSubmit() {
-        // if (checkRequired('car', FIELDS)) {
+        if (checkRequired('car', FIELDS)) {
             return await window.toast.U({
                 modalId,
                 id: {
@@ -194,9 +194,7 @@ export default function AddEditCarModal({
                     await handleSaveCar()
                 }
             })
-        // }
-
-        // window.toast.E('Please fill all required fields')
+        }
     }
 
     if (modal.loading) return <EzLoader h='calc(100vh -180px)'/>

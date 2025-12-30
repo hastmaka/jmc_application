@@ -1,5 +1,5 @@
-import Whole from "@/view/reservation/_modal/pdfExport/pdfUtil/Whole.tsx";
-import FillTd from "@/view/reservation/_modal/pdfExport/pdfUtil/FillTd.tsx";
+import Whole from "@/components/pdfUtilities/Whole.tsx";
+import FillTd from "@/components/pdfUtilities/FillTd.tsx";
 import './_terms.css'
 
 export default function TermsAndConditions() {

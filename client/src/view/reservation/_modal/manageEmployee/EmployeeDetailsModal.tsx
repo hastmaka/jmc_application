@@ -40,7 +40,7 @@ export default function EmployeeDetailsModal({
     const data = {
         'Full Name': `${employeeDetailData?.employee_first_name} ${employeeDetailData?.employee_middle_name} ${employeeDetailData?.employee_last_name}`,
         'Email': employeeDetailData?.employee_email,
-        'Role': employeeDetailData?.employee_role,
+        'Role': employeeDetailData?.select_role?.label,
     }
     const data2 = {
         'Certification': employeeDetailData?.employee_certification,

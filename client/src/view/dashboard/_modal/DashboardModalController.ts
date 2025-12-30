@@ -3,6 +3,7 @@ import type {SignalType} from "@/signals/SignalClass.ts";
 import {FetchApi} from "@/api/FetchApi.ts";
 import {DashboardController} from "@/view/dashboard/DashboardController.ts";
 import {getModel} from "@/api/models";
+import {handleInput as baseHandleInput} from "@/signals/signalController/methods";
 
 /**
  * DashboardModalController
@@ -26,8 +27,10 @@ import {getModel} from "@/api/models";
 
 function buildVehiclePayload(v: any) {
     if (!v) return null;
+    // select_car is an object {label, value} from EzSelect
+    const carId = v.select_car?.value ?? null;
     return {
-        car_car_id: v.car_car_id,
+        car_car_id: carId,
         inspection_vehicle_odometer_start: v.inspection_vehicle_odometer_start ? parseInt(v.inspection_vehicle_odometer_start) : null,
         inspection_vehicle_odometer_end: v.inspection_vehicle_odometer_end ? parseInt(v.inspection_vehicle_odometer_end) : null,
         inspection_vehicle_gas_gallons: v.inspection_vehicle_gas_gallons ? parseInt(v.inspection_vehicle_gas_gallons) : null,
@@ -40,7 +43,7 @@ function buildVehiclesPayloadFromFormData(formData: any, vehicleCount: number) {
     const vehicles = [];
     for (let i = 0; i < vehicleCount; i++) {
         const v = formData?.[`vehicle${i}`];
-        if (v?.car_car_id) {
+        if (v?.select_car?.value) {
             vehicles.push(buildVehiclePayload(v));
         }
     }
@@ -84,6 +87,7 @@ export const DashboardModalController: SignalType<any, any> =
                 const response = await FetchApi(`v1/inspection/${id}`);
                 const inspection = new (getModel('inspection'))(response.data);
                 DashboardModalController.fields = fields;
+                DashboardModalController.currentInspectionId = id;
                 DashboardModalController.populateForm('inspection', fields, inspection);
 
                 // Populate formData for each break
@@ -106,7 +110,7 @@ export const DashboardModalController: SignalType<any, any> =
                     const vehicleModel = new (getModel('inspectionVehicle'))(v);
                     DashboardModalController.formData[`vehicle${index}`] = {
                         ...vehicleModel,
-                        car_car_id: v.car_car_id?.toString(),
+                        // select_car is {label, value} object from model
                         inspection_vehicle_reservation_ids: vehicleModel.inspection_vehicle_reservation_ids || [],
                         reservationData: (v.vehicle_reservations || []).map((r: any) => new (getModel('reservation'))(r)),
                         reservationLoading: false,
@@ -146,6 +150,26 @@ export const DashboardModalController: SignalType<any, any> =
             const response = await FetchApi(`v1/inspection/${inspectionId}`);
             this.inspectionDetailData = response.data;
             this.inspectionDetailLoading = false;
+        },
+        /** Custom handleInput - clears reservationData when select_car or date changes */
+        handleInput: function(this: any, type: string, name: string, value: any): void {
+            // Clear reservationData when car changes on a vehicle
+            if (type.startsWith('vehicle') && name === 'select_car') {
+                if (!this.formData[type]) this.formData[type] = {};
+                this.formData[type].reservationData = [];
+                this.formData[type].inspection_vehicle_reservation_ids = [];
+            }
+            // Clear all vehicle reservations when inspection date changes
+            if (type === 'inspection' && name === 'inspection_date') {
+                for (let i = 0; i < this.vehicleCount; i++) {
+                    const vehicleKey = `vehicle${i}`;
+                    if (this.formData[vehicleKey]) {
+                        this.formData[vehicleKey].reservationData = [];
+                        this.formData[vehicleKey].inspection_vehicle_reservation_ids = [];
+                    }
+                }
+            }
+            baseHandleInput.call(this, type, name, value);
         },
 
         // ═══════════════════════════════════════════════════════════════════
@@ -284,8 +308,13 @@ export const DashboardModalController: SignalType<any, any> =
             const vehicles = buildVehiclesPayloadFromFormData(this.formData, this.vehicleCount);
             const breaks = buildBreaksPayloadFromFormData(this.formData, this.breakCount);
 
+            // Extract .value from select_employee (checkRequired already validated)
+            const inspectionData = { ...this.formData.inspection };
+            inspectionData.employee_employee_id = inspectionData.select_employee?.value;
+            delete inspectionData.select_employee;
+
             const payload = {
-                ...this.formData.inspection,
+                ...inspectionData,
                 inspection_breaks: breaks.length ? breaks : null,
                 vehicles,
             };
@@ -305,9 +334,16 @@ export const DashboardModalController: SignalType<any, any> =
         },
         /** Updates an existing inspection with vehicles */
         handleEditInspection: async function(this: any, modalId: string) {
+            // Extract .value from select_employee if changed
+            const dirtyFieldsCopy = { ...this.dirtyFields };
+            if (dirtyFieldsCopy.select_employee) {
+                dirtyFieldsCopy.employee_employee_id = dirtyFieldsCopy.select_employee.value;
+                delete dirtyFieldsCopy.select_employee;
+            }
+
             const payload: Record<string, any> = {
                 inspection_id: this.currentInspectionId,
-                ...this.dirtyFields,
+                ...dirtyFieldsCopy,
             };
 
             // Only include breaks if they changed
@@ -378,7 +414,7 @@ export const DashboardModalController: SignalType<any, any> =
                 if (!vehicle) continue;
 
                 if (vehicle.reservationLoading) isLoading = true;
-                if (vehicle.car_car_id) hasCarAndDate = true;
+                if (vehicle.select_car?.value) hasCarAndDate = true;
 
                 vehicle.reservationData?.forEach((reservation: any) => {
                     combined.push({

@@ -59,7 +59,7 @@ export default function ReservationDetails({reservationId}: { reservationId: num
     const data1 = {
         ['Created at']: moment.utc(reservationDetailData.created_at).local().format('MM/DD/YYYY'),
         Email: reservationDetailData.reservation_email,
-        Source: reservationDetailData.reservation_source,
+        Source: reservationDetailData.select_source?.label,
         VEH: reservationDetailData.reservation_car,
         Status: reservationDetailData.reservation_status,
         Hours: hour,

@@ -26,14 +26,24 @@ export default class CarModel extends EzModel {
             }, {
                 name: 'car_registration_expiration', type: 'string'
             }, {
-                name: 'car_status', type: 'string', mapping: 'car_status_option',
-                render: (value) => {
-                    return value?.asset_option_name || null
+                name: 'select_status', type: 'object', mapping: 'car_status_option',
+                render: (_value: any, row: any) => {
+                    // Return object {label, value} for EzSelect
+                    if (!row.car_status) return null;
+                    return {
+                        label: row.car_status_option?.asset_option_name || '',
+                        value: row.car_status
+                    };
                 }
             }, {
-                name: 'car_type', type: 'string', mapping: 'car_type_option',
-                render: (value) => {
-                    return value?.asset_option_name || null
+                name: 'select_type', type: 'object', mapping: 'car_type_option',
+                render: (_value: any, row: any) => {
+                    // Return object {label, value} for EzSelect
+                    if (!row.car_type) return null;
+                    return {
+                        label: row.car_type_option?.asset_option_name || '',
+                        value: row.car_type
+                    };
                 }
             }, {
                 name: 'car_vin', type: 'string'

@@ -24,7 +24,7 @@ export default function VehicleSection({index, inspectionDate, canRemove}: Vehic
     const vehicleKey = `vehicle${index}`;
     const vehicle = formData[vehicleKey];
     const vehicleErrors = errors[vehicleKey] || {};
-    const carId = vehicle?.car_car_id;
+    const carId = vehicle?.select_car?.value;
     const totals = getVehicleTotals(index);
 
     // Fetch reservations only if not already loaded (edit mode has data pre-loaded)

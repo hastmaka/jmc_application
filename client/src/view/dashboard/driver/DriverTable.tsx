@@ -8,9 +8,13 @@ import {lazy, Suspense} from "react";
 import moment from "moment";
 import u from '@/util'
 import {ActionIconsToolTip} from "@/ezMantine/actionIconTooltip/ActionIconsToolTip.tsx";
+import {pdfGenerator} from "@/components/pdfUtilities/PdfGenerator.tsx";
+import {extractDriverReportData} from "@/view/dashboard/_pdf/extractDriverReportData.ts";
 
-const DriverReportModal = lazy(() => import('./_modal/DriverReportModal.tsx'));
-const InspectionDetailsModal = lazy(() => import('./_modal/InspectionDetailsModal.tsx'));
+const DriverReportModal = 
+    lazy(() => import('../_modal/DriverReportModal.tsx'));
+const InspectionDetailsModal =
+    lazy(() => import('../_modal/InspectionDetailsModal.tsx'));
 
 export default function DriverTable() {
     const {inspectionData, inspectionLoading} = DashboardController;
@@ -154,7 +158,11 @@ export default function DriverTable() {
                         }, {
                             icon: (
                                 <IconFileTypePdf
-                                    onClick={() => {}}
+                                    onClick={() => pdfGenerator(
+                                        'v1/inspection/' + row.inspection_id,
+                                        EzLoader,
+                                        extractDriverReportData
+                                    )}
                                 />
                             ),
                             tooltip: 'Driver Report'

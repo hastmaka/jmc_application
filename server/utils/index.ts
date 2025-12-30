@@ -5,3 +5,4 @@ export {throwError} from './throwError.ts';
 export {manageFilter} from "./manageFilter.ts";
 export {encodeDecode} from './encodeDecode.ts'
 export {expiresIn, isExpired} from './expiresIn.ts';
+export {logger, requestContext, generateRequestId} from './logger.ts';

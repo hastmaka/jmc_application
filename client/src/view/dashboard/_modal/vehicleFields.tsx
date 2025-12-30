@@ -3,7 +3,7 @@ import EzText from "@/ezMantine/text/EzText.tsx";
 import u from "@/util";
 
 export const getVehicleField = (index: number) => [{
-    name: 'car_car_id',
+    name: 'select_car',
     label: `Vehicle #${index + 1}`,
     type: 'select',
     required: true,

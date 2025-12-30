@@ -101,7 +101,11 @@ export default function InspectionDetailsModal({inspectionId}: InspectionDetails
                         <Divider my={4}/>
                         <Group justify="space-between">
                             <EzText c="dimmed" >To Company:</EzText>
-                            <EzText size="1.2rem" fw="xl" c="teal">{u.formatMoney(totalToCompany)}</EzText>
+                            <EzText
+                                size='xl'
+                                fw='xxl'
+                                c={totalToCompany >= 0 ? 'teal' : 'red'}
+                            >{u.formatMoney(totalToCompany)}</EzText>
                         </Group>
                         <Divider my={4}/>
                         <Group justify="space-between">

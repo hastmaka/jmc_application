@@ -2,6 +2,7 @@ import {Sequelize, DataTypes} from 'sequelize';
 import fs from 'fs';
 import path from 'path';
 import {fileURLToPath} from 'url';
+import {logger} from '../utils/logger.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,10 +28,10 @@ const sequelize = new Sequelize('jmclimousine', process.env.DB_USER!, process.en
 
 sequelize.authenticate()
     .then(() => {
-        console.log('Database connection has been established successfully.');
+        logger.info('Database connection established successfully');
     })
     .catch(err => {
-        console.error('Unable to connect to the database:', err);
+        logger.error('Unable to connect to the database', { error: err.message });
     });
 
 
@@ -52,7 +53,7 @@ sequelize.authenticate()
 
     // await sequelize.sync({ alter: true, force: true }); // ⬅️ Sync models here, and reset the db
     await sequelize.sync({ alter: true }); // ⬅️ Sync models here
-    console.log('All models were synchronized successfully.');
+    logger.info('All models synchronized successfully');
     // console.log('Models sync is disabled.');
 })();
 

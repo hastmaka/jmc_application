@@ -1,0 +1,56 @@
+.table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  font-size: 11px;
+
+  td, th {
+    border: 1px solid black;
+    font-weight: bold;
+    color: black;
+    padding: 2px 4px;
+    text-align: center;
+  }
+
+  th {
+    background-color: #f0f0f0;
+  }
+}
+
+.noBorder {
+  border: none !important;
+}
+
+.borderTop {
+  border-top: 1px solid black !important;
+}
+
+.borderBottom {
+  border-bottom: 1px solid black !important;
+}
+
+.borderLeft {
+  border-left: 1px solid black !important;
+}
+
+.borderRight {
+  border-right: 1px solid black !important;
+}
+
+.left {
+  text-align: left !important;
+}
+
+.right {
+  text-align: right !important;
+}
+
+.companyName {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.cpcn {
+  font-size: 14px;
+  font-weight: bold;
+}

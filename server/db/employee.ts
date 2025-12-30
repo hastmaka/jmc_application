@@ -85,7 +85,7 @@ export default function (sequelize: Sequelize): ModelStatic<any> {
         employee_full_name: {
             type: DataTypes.VIRTUAL,
             get() {
-                return `${this.get('employee_first_name')} ${this.get('employee_last_name')}`
+                return `${this.get('employee_first_name')} ${this.get('employee_middle_name')} ${this.get('employee_last_name')}`
             },
         },
     }, {

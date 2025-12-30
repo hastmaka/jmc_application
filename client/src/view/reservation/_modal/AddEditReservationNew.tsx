@@ -59,7 +59,7 @@ export default function AddEditReservation({
 
     const SELECTSERVICE =
         useMemo(() => [{
-            name: 'reservation_service_type',
+            name: 'select_service_type',
             type: 'select',
             label: 'Service Type',
             fieldProps: {
@@ -98,7 +98,7 @@ export default function AddEditReservation({
                 w: 200
             },
             {
-                name: "car_car_id",
+                name: "select_car",
                 label: "Select Car",
                 type: "select",
                 fieldProps: {
@@ -108,7 +108,7 @@ export default function AddEditReservation({
                 inputProps: {w: 200}
             },
             {
-                name: "reservation_source",
+                name: "select_source",
                 label: "Source",
                 type: "select",
                 fieldProps: {
@@ -148,7 +148,7 @@ export default function AddEditReservation({
                 required: true
             },
             {
-                name: 'reservation_airline',
+                name: 'select_airline',
                 label: 'Airlines',
                 type: "select",
                 fieldProps: {

@@ -1,5 +1,5 @@
-import Space from "@/view/reservation/_modal/pdfExport/pdfUtil/Space.tsx";
-import FillTd from "@/view/reservation/_modal/pdfExport/pdfUtil/FillTd.tsx";
+import Space from "@/components/pdfUtilities/Space.tsx";
+import FillTd from "@/components/pdfUtilities/FillTd.tsx";
 import {Fragment} from "react";
 
 export default function ReservationDetail(props: Record<string, any>) {

@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import {handleDataToReturn, handleError} from "../../utils/index.ts";
+import {handleDataToReturn, handleError, logger} from "../../utils/index.ts";
 import models from '../../db/index.ts';
 import Employee from "../../classes/Employee.ts";
 import Document from "../../classes/Document.ts";
@@ -25,7 +25,6 @@ export const _employee = {
             const employee = await Employee.listEmployee('findAndCountAll', query)
             res.json(await handleDataToReturn(employee, req?.authUser?.auth));
         } catch (e: any) {
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -34,7 +33,6 @@ export const _employee = {
             const employee = await Employee.listEmployee('findAll')
             res.json(await handleDataToReturn(employee, req?.authUser?.auth));
         } catch (e: any) {
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -64,7 +62,6 @@ export const _employee = {
             const employee = await Employee.listEmployeeByPk(+employee_id, query);
             res.json(await handleDataToReturn(employee, req?.authUser?.auth));
         } catch (e: any) {
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -85,12 +82,17 @@ export const _employee = {
 
             await transaction.commit();
 
+            logger.audit('CREATE', {
+                resource: 'employee',
+                resourceId: _employee.employee_id,
+                userId: req.authUser?.user_id
+            });
+
             res.json(await handleDataToReturn({}, req?.authUser?.auth));
         } catch (e: any) {
             if (transaction) {
                 await transaction.rollback();
             }
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -111,12 +113,17 @@ export const _employee = {
 
             await transaction.commit();
 
+            logger.audit('UPDATE', {
+                resource: 'employee',
+                resourceId: rest.employee_id,
+                userId: req.authUser?.user_id
+            });
+
             res.json(await handleDataToReturn({}, req?.authUser?.auth));
         } catch (e: any) {
             if (transaction) {
                 await transaction.rollback();
             }
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -128,12 +135,18 @@ export const _employee = {
             transaction = await models.sequelize!.transaction();
             await Employee.deleteEmployee(transaction, +employee_id, req?.authUser?.auth);
             await transaction.commit();
+
+            logger.audit('DELETE', {
+                resource: 'employee',
+                resourceId: +employee_id,
+                userId: req.authUser?.user_id
+            });
+
             res.json(await handleDataToReturn({}, req?.authUser?.auth));
         } catch (e: any) {
             if (transaction) {
                 await transaction.rollback();
             }
-            console.log(e.message);
             handleError(res, e)
         }
     },

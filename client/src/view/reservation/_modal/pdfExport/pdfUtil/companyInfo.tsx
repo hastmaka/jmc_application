@@ -1,4 +1,4 @@
-import FillTd from "@/view/reservation/_modal/pdfExport/pdfUtil/FillTd.tsx";
+import FillTd from "@/components/pdfUtilities/FillTd.tsx";
 
 export default function CompanyInfo(props: Record<string, any>) {
     const {

@@ -105,12 +105,12 @@ export default function ReservationGridToolbar({
         }
     }
 
-    function handleFilterByCar(v: string){
+    function handleFilterByCar(v: Record<string, any>){
         _handleInput('carFilter', v)
         if (v) {
             ReservationController.manageFilters({
                 fieldName: 'car_car_id',
-                value: v,
+                value: v.value,
                 operator: '='
             })
         } else {

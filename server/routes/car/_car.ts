@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import Car from '../../classes/Car.ts'
 import Document from "../../classes/Document.ts";
-import {handleDataToReturn, handleError} from "../../utils/index.js";
+import {handleDataToReturn, handleError, logger} from "../../utils/index.js";
 import models from '../../db/index.ts';
 import {Op, Transaction} from "sequelize";
 
@@ -21,7 +21,6 @@ export const _car = {
             const car = await Car.listCar('findAndCountAll', query)
             res.json(await handleDataToReturn(car, req?.authUser?.auth));
         } catch (e: any) {
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -39,7 +38,6 @@ export const _car = {
             const car = await Car.listCar('findAll', query)
             res.json(await handleDataToReturn(car, req?.authUser?.auth));
         } catch (e: any) {
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -61,7 +59,6 @@ export const _car = {
             const car = await Car.listCarByPk(+car_id, query);
             res.json(await handleDataToReturn(car, req?.authUser?.auth));
         } catch (e: any) {
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -82,12 +79,17 @@ export const _car = {
 
             await transaction.commit();
 
+            logger.audit('CREATE', {
+                resource: 'car',
+                resourceId: _car.car_id,
+                userId: req.authUser?.user_id
+            });
+
             res.json(await handleDataToReturn({}, req?.authUser?.auth));
         } catch (e: any) {
             if (transaction) {
                 await transaction.rollback();
             }
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -108,12 +110,17 @@ export const _car = {
 
             await transaction.commit();
 
+            logger.audit('UPDATE', {
+                resource: 'car',
+                resourceId: rest.car_id,
+                userId: req.authUser?.user_id
+            });
+
             res.json(await handleDataToReturn({}, req?.authUser?.auth));
         } catch (e: any) {
             if (transaction) {
                 await transaction.rollback();
             }
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -125,9 +132,15 @@ export const _car = {
             transaction = await models.sequelize!.transaction();
             await Car.deleteCar(transaction, +car_id, req?.authUser?.auth);
             await transaction.commit();
+
+            logger.audit('DELETE', {
+                resource: 'car',
+                resourceId: +car_id,
+                userId: req.authUser?.user_id
+            });
+
             res.json(await handleDataToReturn({}, req?.authUser?.auth));
         } catch (e: any) {
-            console.log(e.message);
             handleError(res, e)
         }
     },

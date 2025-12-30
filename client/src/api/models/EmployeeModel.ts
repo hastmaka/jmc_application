@@ -27,9 +27,14 @@ export default class EmployeeModel extends EzModel {
             }, {
                 name: 'employee_termination_date', type: 'string'
             }, {
-                name: 'employee_role', type: 'int', mapping: 'employee_role_option',
-                render: (value) => {
-                    return value.asset_option_name || ''
+                name: 'select_role', type: 'object', mapping: 'employee_role_option',
+                render: (_value: any, row: any) => {
+                    // Return object {label, value} for EzSelect
+                    if (!row.employee_role_option) return {label: '', value: ''};
+                    return {
+                        label: row.employee_role_option?.asset_option_name || '',
+                        value: row.employee_role
+                    };
                 }
             },
             //     {

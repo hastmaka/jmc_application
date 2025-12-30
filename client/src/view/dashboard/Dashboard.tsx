@@ -1,14 +1,13 @@
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import "./CustomReactGridLayout.css";
 import EzLoader from '@/ezMantine/loader/EzLoader.tsx'
 import {Flex, Stack} from "@mantine/core";
 import {lazy, Suspense} from "react";
 import DashboardToolBar from "@/view/dashboard/DashboardToolBar.tsx";
 
-const Fuel = lazy(() => import('./Fuel.tsx'))
-const Miles = lazy(() => import('./Miles.tsx'))
-const Driver = lazy(() => import('./Driver.tsx'))
+const Fuel = lazy(() => import('./fuel/Fuel.tsx'))
+const Miles = lazy(() => import('./miles/Miles.tsx'))
+const Driver = lazy(() => import('./driver/Driver.tsx'))
 
 function Dashboard() {
     return (

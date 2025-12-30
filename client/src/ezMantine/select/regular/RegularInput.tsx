@@ -16,6 +16,7 @@ interface RegularInputProps {
     onOptionSubmit: (value: any) => void;
     filterLocal?: boolean;
     handleSearch: () => void;
+    isObjectValue?: boolean;
 }
 
 const RegularInput =
@@ -31,8 +32,21 @@ const RegularInput =
         filterLocal,
         handleSearch,
         onOptionSubmit,
+        isObjectValue,
     }, ref
         ) => {
+            // Get display value: if object use label, if string use valueToLabel or raw value
+            const getDisplayValue = () => {
+                if (!value) return '';
+                // If it's a search string (user typing), show it
+                if (_.isString(value)) return value;
+                // If it's an object {label, value}, use the label
+                if (_.isObject(value) && value.label) return value.label;
+                // Fallback to valueToLabel for legacy string IDs
+                if (!isNaN(value)) return valueToLabel(props.url, _.toNumber(value));
+                return value;
+            };
+
             return (
                 <Combobox.Target>
                     <InputBase
@@ -50,7 +64,7 @@ const RegularInput =
                         {...(props.label && {
                             label: <EzLabel {...props}/>
                         })}
-                        value={!value ? '' : !isNaN(value) ? valueToLabel(props.url, _.toNumber(value)) : value}
+                        value={getDisplayValue()}
                         onClick={() => combobox.openDropdown()}
                         onFocus={() => combobox.openDropdown()}
                         onBlur={() => combobox.closeDropdown()}
@@ -77,7 +91,7 @@ const RegularInput =
                                     onMouseDown={(event) =>
                                         event.preventDefault()}
                                     onClick={async () => {
-                                        onOptionSubmit("");
+                                        onOptionSubmit(isObjectValue ? null : "");
                                         signal.isSearching = false;
                                         signal.search = "";
                                         if (!combobox.dropdownOpened) combobox.openDropdown();

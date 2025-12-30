@@ -109,7 +109,11 @@ export const ReservationModalController: SignalType<any, any> =
         // Car
         handleSaveCar: async function (this: any) {
             const car = {...this.formData.car}
-            if(!car.car_status) car.car_status = 9
+            // Extract .value from select fields (checkRequired already validated)
+            car.car_status = car.select_status?.value ?? 9;
+            car.car_type = car.select_type?.value;
+            delete car.select_status;
+            delete car.select_type;
 
             const document: any[] = []
             if (this.formData.carFiles?.length) {
@@ -137,14 +141,24 @@ export const ReservationModalController: SignalType<any, any> =
             }
         },
         handleEditCar: async function (this: any) {
+            // Extract .value from select fields if changed
+            const dirtyFieldsCopy = { ...this.dirtyFields };
+            if (dirtyFieldsCopy.select_status) {
+                dirtyFieldsCopy.car_status = dirtyFieldsCopy.select_status.value;
+                delete dirtyFieldsCopy.select_status;
+            }
+            if (dirtyFieldsCopy.select_type) {
+                dirtyFieldsCopy.car_type = dirtyFieldsCopy.select_type.value;
+                delete dirtyFieldsCopy.select_type;
+            }
             const response = await FetchApi(
                 'v1/car',
                 'PUT',
-                this.dirtyFields
+                dirtyFieldsCopy
             )
 
             if (response.success) {
-                await this.handleBack()
+                await this.handleBackMangeCar()
             }
         },
         handleChangeStatus: async function(this: any, car_status: number, car_id: number){
@@ -224,7 +238,10 @@ export const ReservationModalController: SignalType<any, any> =
 
         //Employee
         handleSaveEmployee: async function(this: any){
-            const employee = this.formData.employee
+            const employee = {...this.formData.employee}
+            // Extract .value from select fields (checkRequired already validated)
+            employee.employee_role = employee.select_role?.value;
+            delete employee.select_role;
 
             const _document: any[] = []
             if (this.formData.employeeFiles?.length) {
@@ -267,7 +284,12 @@ export const ReservationModalController: SignalType<any, any> =
                 document_name: file.name
             }))
 
+            // Extract .value from select fields if changed
             const payload = {...this.dirtyFields}
+            if (payload.select_role) {
+                payload.employee_role = payload.select_role.value;
+                delete payload.select_role;
+            }
             if (document.length) payload.document = document
 
             if (payload.employee_phone) {
@@ -379,10 +401,20 @@ export const ReservationModalController: SignalType<any, any> =
                 'Cancelled': 8
 
             }
+            // Extract .value from select fields (checkRequired already validated)
+            const reservationData = { ...this.formData.reservation };
+            reservationData.car_car_id = reservationData.select_car?.value;
+            reservationData.reservation_service_type = reservationData.select_service_type?.value;
+            reservationData.reservation_source = reservationData.select_source?.value;
+            reservationData.reservation_airline = reservationData.select_airline?.value;
+            delete reservationData.select_car;
+            delete reservationData.select_service_type;
+            delete reservationData.select_source;
+            delete reservationData.select_airline;
             const data = {
-                ...this.formData.reservation,
+                ...reservationData,
                 reservation_total: Number(total.toFixed(2)*100),
-                reservation_status: statusMap[this.formData.reservation.reservation_status]
+                reservation_status: statusMap[reservationData.reservation_status]
             }
 
             // const obj: Record<string, any> = {
@@ -448,7 +480,25 @@ export const ReservationModalController: SignalType<any, any> =
 
         },
         handleEditReservation: async function (this: any, modalId: string, total: any) {
-            const { originalObj, itineraryFields } = extractItineraryFields(this.dirtyFields);
+            // Extract .value from select fields if changed
+            const dirtyFieldsCopy = { ...this.dirtyFields };
+            if (dirtyFieldsCopy.select_car) {
+                dirtyFieldsCopy.car_car_id = dirtyFieldsCopy.select_car.value;
+                delete dirtyFieldsCopy.select_car;
+            }
+            if (dirtyFieldsCopy.select_service_type) {
+                dirtyFieldsCopy.reservation_service_type = dirtyFieldsCopy.select_service_type.value;
+                delete dirtyFieldsCopy.select_service_type;
+            }
+            if (dirtyFieldsCopy.select_source) {
+                dirtyFieldsCopy.reservation_source = dirtyFieldsCopy.select_source.value;
+                delete dirtyFieldsCopy.select_source;
+            }
+            if (dirtyFieldsCopy.select_airline) {
+                dirtyFieldsCopy.reservation_airline = dirtyFieldsCopy.select_airline.value;
+                delete dirtyFieldsCopy.select_airline;
+            }
+            const { originalObj, itineraryFields } = extractItineraryFields(dirtyFieldsCopy);
 
             // Convert itinerary array → JSON
             if (itineraryFields.length) {

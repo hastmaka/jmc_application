@@ -7,6 +7,7 @@ import FormGenerator from "@/components/form/FormGenerator.tsx";
 import DriverTable from './DriverTable.tsx'
 import DatePickerInputWithMonth from "@/components/DatePickerInputWithMonth.tsx";
 import {IconFilterOff} from "@tabler/icons-react";
+import u from "@/util";
 
 export default function Driver() {
     const {
@@ -84,12 +85,16 @@ export default function Driver() {
             <Stack>
                 <Group justify='space-between'>
                     <Stack flex={1} align='center' gap={8}>
-                        <EzText size='xl' fw='xxl'>${aggregates.totalGrandTotal.toFixed(2)}</EzText>
+                        <EzText size='xl' fw='xxl'>{u.formatMoney(aggregates.totalGrandTotal)}</EzText>
                         <EzText size='xs'>Grand Total</EzText>
                     </Stack>
                     <Divider orientation='vertical'/>
                     <Stack flex={1} align='center' gap={8}>
-                        <EzText size='xl' fw='xxl' c='teal'>${aggregates.totalToCompany.toFixed(2)}</EzText>
+                        <EzText
+                            size='xl'
+                            fw='xxl'
+                            c={aggregates.totalToCompany >= 0 ? 'teal' : 'red'}
+                        >{u.formatMoney(aggregates.totalToCompany)}</EzText>
                         <EzText size='xs'>Total to Company</EzText>
                     </Stack>
                     <Divider orientation='vertical'/>
@@ -104,15 +109,15 @@ export default function Driver() {
                     </Stack>
                 </Group>
 
-                <Card>
+                <Card shadow='none'>
                     <DriverTable/>
                 </Card>
 
-                <Card>
-                    <Flex justify='flex-end'>
-                        <EzText bold='Grand Total: '>${aggregates.totalGrandTotal.toFixed(2)}</EzText>
-                    </Flex>
-                </Card>
+                {/*<Card>*/}
+                {/*    <Flex justify='flex-end'>*/}
+                {/*        <EzText bold='Grand Total: '>${aggregates.totalGrandTotal.toFixed(2)}</EzText>*/}
+                {/*    </Flex>*/}
+                {/*</Card>*/}
             </Stack>
         </EzCard>
     );

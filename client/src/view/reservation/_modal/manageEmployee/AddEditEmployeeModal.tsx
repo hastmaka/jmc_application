@@ -74,7 +74,7 @@ export default function AddEditEmployeeModal({
             //     label: 'Certification',
             // },
             {
-                name: 'employee_role',
+                name: 'select_role',
                 label: 'Role',
                 type: 'select',
                 required: true,

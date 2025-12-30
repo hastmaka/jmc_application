@@ -8,9 +8,14 @@ export default class InspectionModel extends EzModel {
             fields: [{
                 name: 'inspection_id', type: 'int'
             }, {
-                name: 'employee_employee_id', type: 'string', mapping: 'inspection_employee',
-                render: (value: any) => {
-                    return value.employee_full_name || null
+                name: 'select_employee', type: 'object', mapping: 'inspection_employee',
+                render: (_value: any, row: any) => {
+                    // Return object {label, value} for EzSelect
+                    if (!row.employee_employee_id) return null;
+                    return {
+                        label: row.inspection_employee?.employee_full_name || '',
+                        value: row.employee_employee_id
+                    };
                 }
             }, {
                 name: 'inspection_date', type: 'string'

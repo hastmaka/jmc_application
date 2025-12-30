@@ -1,14 +1,18 @@
 import EzMenu from "@/ezMantine/menu/EzMenu.tsx";
-import {lazy, Suspense, useMemo} from 'react';
+import {type ComponentType, lazy, Suspense, useMemo} from 'react';
 import EzLoader from "@/ezMantine/loader/EzLoader.tsx";
 import {ReservationModalController} from "./_modal/ReservationModalController.ts";
 import GenericModal from "@/components/modal/GenericModal.tsx";
-import {IconDotsVertical, IconEye, IconFileTypePdf, IconPencil, IconTag, IconTrash} from "@tabler/icons-react";
-import {pdfGenerator} from "@/view/reservation/_modal/pdfExport/PdfGenerator.tsx";
+import {IconDotsVertical, IconDownload, IconEye, IconPencil, IconTag, IconTrash} from "@tabler/icons-react";
+import {pdfGenerator} from "@/components/pdfUtilities/PdfGenerator.tsx";
 import {LoginController} from "@/view/login/LoginController.ts";
-import TestPdf from "@/view/reservation/_modal/pdfExport/pdfUtil/TestPdf.tsx";
+import TestPdf from "@/components/pdfUtilities/TestPdf.tsx";
 import EzText from "@/ezMantine/text/EzText.tsx";
 import toast from "@/ezMantine/toast/toast.tsx";
+import {extractDataFromRow} from "./_modal/pdfExport/pdfUtil/extractDataFromRow.ts";
+import JMC from "./_modal/pdfExport/JMC.tsx";
+import ClientFull from "./_modal/pdfExport/ClientFull.tsx";
+import ClientSimple from "./_modal/pdfExport/ClientSimple.tsx";
 
 // dynamic imports
 // const AddEditReservation =
@@ -42,7 +46,7 @@ function ReservationGridActions({/*state,*/ row}: { state: any, row: any }) {
         const chapterOrder = row.reservation_charter_order
         window.openModal({
             modalId,
-            title: `${row.reservation_passenger_name} | Reservation Details: ${row.reservation_service_type} | Charter Order: ${chapterOrder}`,
+            title: `${row.reservation_passenger_name} | Reservation Details: ${row.select_service_type?.label} | Charter Order: ${chapterOrder}`,
             size: '60%',
             children: (
                 <GenericModal
@@ -90,6 +94,29 @@ function ReservationGridActions({/*state,*/ row}: { state: any, row: any }) {
         })
     }
 
+    async function handlePdfGenerator(template: ComponentType, download?: boolean, filePrefix?: string) {
+        const charterOrder = row.reservation_charter_order || row.reservation_id;
+        const fileName = filePrefix ? `${filePrefix}_${charterOrder}.pdf` : undefined;
+
+        return await window.toast.U({
+            id: {
+                title: download ? "Downloading PDF" : "Export PDF",
+                message: "Please wait",
+            },
+            update: {
+                success: download ? 'PDF downloaded.' : 'PDF exported successfully.',
+                error: download ? 'PDF download failed.' : 'PDF export failed.',
+            },
+            cb: () => pdfGenerator(
+                'v1/reservation/' + row.reservation_id,
+                template,
+                extractDataFromRow,
+                download,
+                fileName
+            )
+        });
+    }
+
     const ITEMS = useMemo(() => [
         ...(user.user_email === 'cluis132@yahoo.com'
                 ? [
@@ -101,7 +128,13 @@ function ReservationGridActions({/*state,*/ row}: { state: any, row: any }) {
                                 modalId: 'test-pdf',
                                 title: 'Test PDF',
                                 fullScreen: true,
-                                children: <TestPdf id={row.reservation_id}/>,
+                                children: (
+                                    <TestPdf
+                                        url={`v1/reservation/${row.reservation_id}`}
+                                        extractor={extractDataFromRow}
+                                        template={[JMC, ClientFull, ClientSimple]}
+                                    />
+                                ),
                                 onClose: () => {}
                             })
                         }
@@ -109,62 +142,37 @@ function ReservationGridActions({/*state,*/ row}: { state: any, row: any }) {
                 ]
                 : []
         ),
+        // Preview PDFs
         {
-            icon: <IconFileTypePdf size={18} />,
-            label: 'Exp. Charter Order',
-            onClick: async () => {
-                return await window.toast.U({
-                    id: {
-                        title: "Export PDF",
-                        message: "Please wait",
-                    },
-                    update: {
-                        success: 'Pdf exported successfully.',
-                        error: 'Pdf exported failed',
-                    },
-                    cb: async () => {
-                        await pdfGenerator(row.reservation_id, 'c_order')
-                    }
-                })
-            }
+            icon: <IconEye size={18} />,
+            label: 'Preview Charter Order',
+            onClick: () => handlePdfGenerator(JMC)
         },
         {
-            icon: <IconFileTypePdf size={18} />,
-            label: 'Exp. Conf. Client',
-            onClick: async () => {
-                return await window.toast.U({
-                    id: {
-                        title: "Export PDF",
-                        message: "Please wait",
-                    },
-                    update: {
-                        success: 'Pdf exported successfully.',
-                        error: 'Pdf exported failed',
-                    },
-                    cb: async () => {
-                        await pdfGenerator(row.reservation_id, 'conf_brake')
-                    }
-                })
-            }
+            icon: <IconEye size={18} />,
+            label: 'Preview Conf. Client',
+            onClick: () => handlePdfGenerator(ClientFull)
         },
         {
-            icon: <IconFileTypePdf size={18} />,
-            label: 'Exp. Conf. JMC',
-            onClick: async () => {
-                return await window.toast.U({
-                    id: {
-                        title: "Export PDF",
-                        message: "Please wait",
-                    },
-                    update: {
-                        success: 'Pdf exported successfully.',
-                        error: 'Pdf exported failed',
-                    },
-                    cb: async () => {
-                        await pdfGenerator(row.reservation_id, 'conf')
-                    }
-                })
-            }
+            icon: <IconEye size={18} />,
+            label: 'Preview Conf. JMC',
+            onClick: () => handlePdfGenerator(ClientSimple)
+        },
+        // Download PDFs
+        {
+            icon: <IconDownload size={18} />,
+            label: 'Download Charter Order',
+            onClick: () => handlePdfGenerator(JMC, true, 'Charter_Order')
+        },
+        {
+            icon: <IconDownload size={18} />,
+            label: 'Download Conf. Client',
+            onClick: () => handlePdfGenerator(ClientFull, true, 'Conf_Client')
+        },
+        {
+            icon: <IconDownload size={18} />,
+            label: 'Download Conf. JMC',
+            onClick: () => handlePdfGenerator(ClientSimple, true, 'Conf_JMC')
         },
         {
             icon: <IconEye size={18} />,

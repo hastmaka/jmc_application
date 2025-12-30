@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import {Op, Transaction} from "sequelize";
 import models from "../../db/index.ts";
-import {handleDataToReturn, handleError, throwError} from "../../utils/index.js";
+import {handleDataToReturn, handleError, throwError, logger} from "../../utils/index.js";
 import User from "../../classes/User.ts";
 
 export const _user = {
@@ -13,11 +13,20 @@ export const _user = {
             const auth = await User.manageToken(token as string, req.ip);
             await User.updateUser(transaction, {user_last_ip: req.ip}, {where: {user_uid: auth.user_uid}})
             await transaction.commit();
+
+            logger.audit('LOGIN', {
+                resource: 'user',
+                resourceId: auth.user?.user_id,
+                userId: auth.user?.user_id,
+                ip: req.ip
+            });
+
             res.json(await handleDataToReturn({}, auth));
         } catch (e: any) {
             if (transaction) {
                 await transaction.rollback();
             }
+            logger.warn('Login failed', { ip: req.ip });
             throwError(e.message);
         }
     },
@@ -32,12 +41,17 @@ export const _user = {
 
             await transaction.commit();
 
+            logger.audit('UPDATE', {
+                resource: 'user',
+                resourceId: data.user_id,
+                userId: req.authUser?.user_id
+            });
+
             res.json(await handleDataToReturn({}, req?.authUser?.auth));
         } catch (e: any) {
             if (transaction) {
                 await transaction.rollback();
             }
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -75,12 +89,17 @@ export const _user = {
 
             await transaction.commit();
 
+            logger.audit('UPDATE', {
+                resource: 'user_preference',
+                resourceId: user_id,
+                userId: user_id
+            });
+
             res.json(await handleDataToReturn({}, req?.authUser?.auth));
         } catch (e: any) {
             if (transaction) {
                 await transaction.rollback();
             }
-            console.log(e.message);
             handleError(res, e)
         }
     }

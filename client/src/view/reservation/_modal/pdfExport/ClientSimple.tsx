@@ -1,6 +1,6 @@
 import classes from "./ClientFull.module.scss";
 import u from "@/util";
-import Space from "./pdfUtil/Space.tsx";
+import Space from "../../../../components/pdfUtilities/Space.tsx";
 import TermsAndConditions from "@/view/reservation/_modal/pdfExport/pdfUtil/_termsAndConditions.tsx";
 import CompanyInfo from "@/view/reservation/_modal/pdfExport/pdfUtil/companyInfo.tsx";
 import ReservationDetail from "@/view/reservation/_modal/pdfExport/pdfUtil/reservationDetail.tsx";

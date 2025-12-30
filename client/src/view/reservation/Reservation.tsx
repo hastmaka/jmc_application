@@ -91,11 +91,11 @@ export default function Reservation() {
                 }
             },
             {
-                accessorKey: 'reservation_source',
+                accessorKey: 'select_source',
                 header: 'Sour',
                 size: 50,
                 cell: ({cell}: {cell: any}) => {
-                    const source = cell.row.original.reservation_source;
+                    const source = cell.row.original.select_source?.label;
                     return source ? <span>{source.substring(0, 3)}</span> : null
                 }
             },

@@ -1,9 +1,9 @@
 import classes from './JMC.module.scss';
-import Under from "./pdfUtil/Under.tsx";
-import FillTd from "./pdfUtil/FillTd.tsx";
+import Under from "../../../../components/pdfUtilities/Under.tsx";
+import FillTd from "../../../../components/pdfUtilities/FillTd.tsx";
 import u from "@/util";
 import {Fragment} from "react";
-import Space from "@/view/reservation/_modal/pdfExport/pdfUtil/Space.tsx";
+import Space from "@/components/pdfUtilities/Space.tsx";
 
 export default function JMC(props: any) {
     const {

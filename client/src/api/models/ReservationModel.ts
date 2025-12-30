@@ -8,8 +8,15 @@ export default class ReservationModel extends EzModel {
                 { name: 'reservation_id', type: 'int' },
                 { name: 'reservation_passenger_name', type: 'string' },
                 {
-                    name: 'car_car_id', type: 'string', mapping: 'reservation_car',
-                    render: (value) => value?.car_plate || null
+                    name: 'select_car', type: 'object', mapping: 'reservation_car',
+                    render: (_value: any, row: any) => {
+                        // Return object {label, value} for EzSelect
+                        if (!row.car_car_id) return null;
+                        return {
+                            label: row.reservation_car?.car_plate || '',
+                            value: row.car_car_id
+                        };
+                    }
                 },
                 {
                     name: 'car_color', type: 'string', mapping: 'reservation_car',
@@ -20,14 +27,31 @@ export default class ReservationModel extends EzModel {
                     render: (value) => value?.car_plate || null
                 },
                 {
-                    name: 'reservation_source', type: 'string', mapping: 'reservation_source_option',
-                    render: (value) => value?.asset_option_name || null
+                    name: 'select_source', type: 'object', mapping: 'reservation_source_option',
+                    render: (_value: any, row: any) => {
+                        // Return object {label, value} for EzSelect
+                        if (!row.reservation_source) return null;
+                        return {
+                            label: row.reservation_source_option?.asset_option_name || '',
+                            value: row.reservation_source
+                        };
+                    }
                 },
                 { name: 'reservation_email', type: 'string' },
                 { name: 'reservation_phone', type: 'string' },
                 { name: 'reservation_date', type: 'string'},
                 { name: 'reservation_time', type: 'string'},
-                { name: 'reservation_airline', type: 'string'},
+                {
+                    name: 'select_airline', type: 'object',
+                    render: (_value: any, row: any) => {
+                        // Return object {label, value} for EzSelect (local data select)
+                        if (!row.reservation_airline) return null;
+                        return {
+                            label: row.reservation_airline,
+                            value: row.reservation_airline
+                        };
+                    }
+                },
                 { name: 'reservation_service_type', type: 'string'},
                 { name: 'reservation_fly_info', type: 'string'},
                 { name: 'reservation_pickup_location', type: 'string'},
@@ -58,11 +82,18 @@ export default class ReservationModel extends EzModel {
                 { name: 'reservation_tips', type: 'string' },
                 {
                     name: 'reservation_status', type: 'string', mapping: 'reservation_status_option',
-                    render: (value) => value.asset_option_name
+                    render: (value) => value?.asset_option_name || null
                 },
                 {
-                    name: 'reservation_service_type', type: 'string', mapping: 'reservation_service_type_option',
-                    render: (value) => value.asset_option_name
+                    name: 'select_service_type', type: 'object', mapping: 'reservation_service_type_option',
+                    render: (_value: any, row: any) => {
+                        // Return object {label, value} for EzSelect
+                        if (!row.reservation_service_type) return null;
+                        return {
+                            label: row.reservation_service_type_option?.asset_option_name || '',
+                            value: row.reservation_service_type
+                        };
+                    }
                 },
                 { name: 'reservation_datetime', type: 'string' },
                 { name: 'reservation_sign', type: 'string' },

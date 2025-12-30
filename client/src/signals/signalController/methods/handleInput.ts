@@ -1,12 +1,9 @@
-import _ from "lodash";
-
 /**
  * * Handles input changes for form fields, updating the form data and error states accordingly.
  *  *
  *  * @param {string} type - The category or section of the form (e.g., "user", "address").
  *  * @param {string} name - The specific field name within the form section.
  *  * @param {*} value - The new value to assign to the form field.
- *  * @param {boolean} [api] - Optional flag indicating if the value is coming from an API response.
  *  *
  *  * This function performs the following operations:
  *  * - Validates that both `type` and `name` are provided.
@@ -23,30 +20,17 @@ export function handleInput(
     type: string,
     name: string,
     value: any,
-    api?: boolean
 ): void {
     if (!type || !name) throw new Error('type and name are required');
 
     if (!this.errors[type]) this.errors[type] = {};
-
-    let tempValue = value;
-
-    if (api) {
-        const isArr = _.isArray(value);
-        const current = this.formData?.[type]?.[name];
-        if (!current) {
-            tempValue = !isArr ? [value] : value;
-        } else {
-            tempValue = _.isArray(current) ? [...current, value] : [value];
-        }
-    }
 
     if (this.errors[type]?.[name] && value) {
         delete this.errors[type][name];
     }
 
     if (!this.formData[type]) this.formData[type] = {};
-    this.formData[type][name] = tempValue;
+    this.formData[type][name] = value;
     if(import.meta.env.DEV) console.log(this.formData);
     /** we check in real time if some field from the formData[key] change*/
     if (this.formDataCopy) {

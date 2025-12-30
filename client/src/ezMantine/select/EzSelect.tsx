@@ -150,7 +150,10 @@ export default function EzSelect({
     if (multiselect) {
         if (!_.isArray(value)) throw new Error('EzSelect: To work as multiselect, value must be an array');
     } else {
-        if (!_.isString(value)) throw new Error('EzSelect: To work as single select, value must be a string');
+        // Single select accepts object {label, value} or null/undefined
+        if (value && !_.isObject(value) && !_.isString(value)) {
+            throw new Error('EzSelect: To work as single select, value must be an object {label, value} or string');
+        }
     }
     // DON'T TOUCH ANY VALIDATION
 
@@ -234,9 +237,11 @@ export default function EzSelect({
 
         if (filtered.length > 0) {
             return filtered.map(({ value: val, label }: {value: string, label: string}) => {
-                const isSelected = _.isArray(value)
-                    ? value.includes(val) || value.includes(label)
-                    : value === val || label === value;
+                // Handle object value {label, value} or string/array
+                const currentValue = _.isObject(value) && !_.isArray(value) ? value.value : value;
+                const isSelected = _.isArray(currentValue)
+                    ? currentValue.includes(val) || currentValue.includes(label)
+                    : String(currentValue) === String(val) || label === currentValue;
                 return (
                     <Combobox.Option key={val} value={val}>
                         <Group gap="sm">
@@ -264,7 +269,7 @@ export default function EzSelect({
                 temp = [...value, signal.search];
                 onOptionSubmit(temp);
             } else {
-                onOptionSubmit(signal.search);
+                onOptionSubmit({label: signal.search, value: signal.search});
             }
         } else {
             if (multiselect) {
@@ -273,7 +278,9 @@ export default function EzSelect({
                     : [...value, val];
                 onOptionSubmit(temp);
             } else {
-                onOptionSubmit(val);
+                // Find the selected option to get both label and value
+                const selectedOption = signal.data.find((opt: any) => String(opt.value) === String(val));
+                onOptionSubmit(selectedOption ? {label: selectedOption.label, value: selectedOption.value} : {label: val, value: val});
             }
         }
 
@@ -319,6 +326,7 @@ export default function EzSelect({
                         filterLocal={filterLocal}
                         handleSearch={handleSearch}
                         getData={getData}
+                        isObjectValue={!multiselect}
                     />
                 )
             }

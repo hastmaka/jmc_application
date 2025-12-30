@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import {handleDataToReturn, handleError, manageFilter, throwError} from "../../utils/index.ts";
+import {handleDataToReturn, handleError, manageFilter, throwError, logger} from "../../utils/index.ts";
 import models from '../../db/index.ts';
 import {Op, Transaction} from "sequelize";
 import Reservation from "../../classes/Reservation.ts";
@@ -109,15 +109,20 @@ export const _reservation = {
                 /* --------------------------------------------------
                    5) Create reservation (Policy A)
                 -------------------------------------------------- */
-                await Reservation.createReservationFactory(transaction, data, req.authUser);
+                const reservation = await Reservation.createReservationFactory(transaction, data, req.authUser);
 
                 await transaction.commit();
+
+                logger.audit('CREATE', {
+                    resource: 'reservation',
+                    resourceId: reservation?.get('reservation_id'),
+                    userId: req.authUser?.user_id
+                });
 
                 res.json(await handleDataToReturn({}, req?.authUser?.auth));
 
             } catch (e: any) {
                 if (transaction) await transaction.rollback();
-                console.log(e.message);
                 handleError(res, e);
             }
         },
@@ -212,12 +217,17 @@ export const _reservation = {
 
             await transaction.commit();
 
+            logger.audit('UPDATE', {
+                resource: 'reservation',
+                resourceId: data.reservation_id,
+                userId: req.authUser?.user_id
+            });
+
             res.json(await handleDataToReturn({}, req?.authUser?.auth));
         } catch (e: any) {
             if (transaction) {
                 await transaction.rollback();
             }
-            console.log(e.message);
             handleError(res, e)
         }
     },
@@ -230,12 +240,17 @@ export const _reservation = {
 
             await transaction.commit();
 
+            logger.audit('DELETE', {
+                resource: 'reservation',
+                resourceId: +reservation_id,
+                userId: req.authUser?.user_id
+            });
+
             res.json(await handleDataToReturn({}, req?.authUser?.auth));
         } catch (e: any) {
             if (transaction) {
                 await transaction.rollback();
             }
-            console.log(e.message);
             handleError(res, e)
         }
     },
