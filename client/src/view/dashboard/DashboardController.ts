@@ -9,6 +9,9 @@ export const DashboardController: SignalType<any, any> =
         inspectionLoading: false,
         fuelLoading: false,
         milesLoading: false,
+        summaryLoading: false,
+        summaryData: null as any,
+        summaryMonth: null as string | null,
     },{
         inspectionGetData: async function(this: any) {
             const dateRange = this.formData?.driver?.date_range;
@@ -301,5 +304,24 @@ export const DashboardController: SignalType<any, any> =
                 daysWithData,
                 chartData
             };
+        },
+
+        // ═══════════════════════════════════════════════════════════════════
+        // MONTHLY SUMMARY SECTION
+        // ═══════════════════════════════════════════════════════════════════
+
+        summaryGetData: async function(this: any, month: string) {
+            this.summaryLoading = true;
+            this.summaryMonth = month;
+
+            const response = await FetchApi(`v1/reservation/summary?month=${month}`);
+
+            if (response.success) {
+                this.summaryData = response.data;
+            } else {
+                this.summaryData = null;
+            }
+
+            this.summaryLoading = false;
         }
     }).signal

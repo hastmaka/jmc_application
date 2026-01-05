@@ -411,6 +411,9 @@ export const ReservationModalController: SignalType<any, any> =
             delete reservationData.select_service_type;
             delete reservationData.select_source;
             delete reservationData.select_airline;
+            // Extract pickup/dropoff location values (handles both object from select and string from freeMode)
+            reservationData.reservation_pickup_location = reservationData.reservation_pickup_location?.value ?? reservationData.reservation_pickup_location;
+            reservationData.reservation_dropoff_location = reservationData.reservation_dropoff_location?.value ?? reservationData.reservation_dropoff_location;
             const data = {
                 ...reservationData,
                 reservation_total: Number(total.toFixed(2)*100),
@@ -497,6 +500,13 @@ export const ReservationModalController: SignalType<any, any> =
             if (dirtyFieldsCopy.select_airline) {
                 dirtyFieldsCopy.reservation_airline = dirtyFieldsCopy.select_airline.value;
                 delete dirtyFieldsCopy.select_airline;
+            }
+            // Extract pickup/dropoff location values (handles both object from select and string from freeMode)
+            if (dirtyFieldsCopy.reservation_pickup_location) {
+                dirtyFieldsCopy.reservation_pickup_location = dirtyFieldsCopy.reservation_pickup_location?.value ?? dirtyFieldsCopy.reservation_pickup_location;
+            }
+            if (dirtyFieldsCopy.reservation_dropoff_location) {
+                dirtyFieldsCopy.reservation_dropoff_location = dirtyFieldsCopy.reservation_dropoff_location?.value ?? dirtyFieldsCopy.reservation_dropoff_location;
             }
             const { originalObj, itineraryFields } = extractItineraryFields(dirtyFieldsCopy);
 

@@ -13,7 +13,7 @@ import {FetchApi} from "@/api/FetchApi.ts";
  * @param extractor - Function to transform API response into template props
  * @param wantToDownloadIt - If true, downloads PDF directly; if false/undefined, opens in modal
  * @param fileName - Required when wantToDownloadIt is true. The name for the downloaded file
- *
+ * @param orientation
  * @example
  * // Preview in modal
  * await pdfGenerator('v1/reservation/123', MyTemplate, extractData);
@@ -27,7 +27,8 @@ export const pdfGenerator = async (
     template: ComponentType<any>,
     extractor: (row: any) => Record<string, any>,
     wantToDownloadIt?: boolean,
-    fileName?: string
+    fileName?: string,
+    orientation: 'portrait' | 'landscape' = 'portrait'
 ) => {
     if (wantToDownloadIt && !fileName) {
         throw Error(`Not download it: ${fileName}`);
@@ -37,11 +38,12 @@ export const pdfGenerator = async (
     const row = response.data
 
     // ---- 3) CREATE HIDDEN CONTAINER ----
+    const containerWidth = orientation === 'portrait' ? 900 : 1140; // 816 - 900 <-> 1056 - 1140
     const container = document.createElement("div");
     container.style.position = "absolute";
     container.style.top = "0px";
     container.style.left = "-9999px";
-    container.style.width = "900px";
+    container.style.width = `${containerWidth}px`;
     container.style.minHeight = "auto";
     container.style.display = "block";
     container.style.zIndex = "-1";
@@ -62,26 +64,54 @@ export const pdfGenerator = async (
 
     // ---- 6) RENDER TO PDF ----
     const canvas = await html2canvas(container, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
 
-    const pdf = new jsPDF({ unit: "px", format: "letter" });
+    const pdf = new jsPDF({ unit: "px", format: "letter", orientation });
     const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
     const margin = 20;
-    const topMargin = margin / 2;
-    const imgWidth = pageWidth - margin * 2;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = topMargin;
+    const topMargin = margin - 6; // Move content up 4px
+    const contentWidth = pageWidth - margin * 2;
+    const contentHeight = pageHeight - margin - topMargin;
 
-    pdf.addImage(imgData, "PNG", margin, topMargin, imgWidth, imgHeight);
-    heightLeft -= pdf.internal.pageSize.getHeight();
+    // Calculate scale factor
+    const scale = contentWidth / canvas.width;
+    // const scaledHeight = canvas.height * scale;
 
-    while (heightLeft > 0) {
-        pdf.addPage();
-        position = heightLeft - imgHeight + margin;
-        pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-        heightLeft -= pdf.internal.pageSize.getHeight();
+    // How much of the original canvas fits per page (in canvas pixels)
+    const canvasHeightPerPage = contentHeight / scale;
+
+    const totalPages = Math.ceil(canvas.height / canvasHeightPerPage);
+
+    for (let page = 0; page < totalPages; page++) {
+        if (page > 0) {
+            pdf.addPage();
+        }
+
+        // Calculate the portion of canvas to extract for this page
+        const sourceY = page * canvasHeightPerPage;
+        const sourceHeight = Math.min(canvasHeightPerPage, canvas.height - sourceY);
+
+        // Create a temporary canvas for this page's content
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = sourceHeight;
+
+        const ctx = pageCanvas.getContext('2d');
+        if (ctx) {
+            ctx.drawImage(
+                canvas,
+                0, sourceY,                    // Source x, y
+                canvas.width, sourceHeight,    // Source width, height
+                0, 0,                          // Dest x, y
+                canvas.width, sourceHeight     // Dest width, height
+            );
+        }
+
+        const pageImgData = pageCanvas.toDataURL("image/png");
+        const destHeight = sourceHeight * scale;
+
+        pdf.addImage(pageImgData, "PNG", margin, topMargin, contentWidth, destHeight);
     }
 
     if(wantToDownloadIt) {
@@ -90,7 +120,7 @@ export const pdfGenerator = async (
         // ---- 7) OPEN PDF VIEWER MODAL ----
         const pdfBlobUrl = pdf.output('bloburl').toString();
 
-        const modalId = 'pdf-viewer-modal';
+        const modalId = 'pdf-viewer-modal' + url;
         window.openModal({
             modalId,
             title: 'PDF Preview',

@@ -102,7 +102,12 @@ export default function (sequelize: Sequelize): ModelStatic<Model> {
             allowNull: true,
             comment: 'Maintenance notes or special instructions'
         },
-
+        car_owner_percentage: {
+            type: DataTypes.DECIMAL(3, 2),
+            allowNull: true,
+            defaultValue: 1.00,
+            comment: 'Owner earns this percentage (0.60 = 60%)'
+        },
         created_at: {
             type: 'TIMESTAMP',
             defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
@@ -157,7 +162,7 @@ export default function (sequelize: Sequelize): ModelStatic<Model> {
                 foreignKey: 'car_car_id',
                 onDelete: "NO ACTION",
                 onUpdate: "NO ACTION"
-            })
+            });
         };
 
     return Model

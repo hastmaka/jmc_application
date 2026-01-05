@@ -1,19 +1,18 @@
 .table {
   border-collapse: collapse;
-  table-layout: fixed;
+  //table-layout: fixed;
   width: 100%;
-  font-size: 11px;
+  font-size: 12px;
 
   td, th {
-    border: 1px solid black;
-    font-weight: bold;
+    font-weight: 500;
     color: black;
     padding: 2px 4px;
     text-align: center;
   }
 
   th {
-    background-color: #f0f0f0;
+    font-weight: bold !important;
   }
 }
 
@@ -22,18 +21,22 @@
 }
 
 .borderTop {
+  border: none !important;
   border-top: 1px solid black !important;
 }
 
 .borderBottom {
+  border: none !important;
   border-bottom: 1px solid black !important;
 }
 
 .borderLeft {
+  border: none !important;
   border-left: 1px solid black !important;
 }
 
 .borderRight {
+  border: none !important;
   border-right: 1px solid black !important;
 }
 
@@ -46,11 +49,15 @@
 }
 
 .companyName {
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 22px;
+  font-weight: 900 !important;
 }
 
 .cpcn {
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 22px;
+  font-weight: 900 !important;
+}
+
+.bold {
+  font-weight: 900 !important;
 }

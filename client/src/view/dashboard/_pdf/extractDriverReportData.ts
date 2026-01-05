@@ -5,7 +5,7 @@ export function extractDriverReportData(inspection: any) {
     const breaks = inspection.inspection_breaks || [];
 
     // Get first vehicle for header info (or combine for multi-vehicle)
-    const firstVehicle = vehicles[0];
+    // const firstVehicle = vehicles[0];
     const vehicleNumber = vehicles
         .map((v: any) => v.vehicle_car?.car_plate || '')
         .filter(Boolean)
@@ -28,12 +28,21 @@ export function extractDriverReportData(inspection: any) {
 
         const vehicleReservations = vehicle.vehicle_reservations || [];
         for (const r of vehicleReservations) {
+            // Calculate dropoff time from pickup + hours
+            const pickupTime = r.reservation_time || '';
+            const hours = parseFloat(r.reservation_hour) || 0;
+            let dropoffTime = '';
+            if (pickupTime && hours) {
+                const pickup = dayjs(`2000-01-01 ${pickupTime}`);
+                dropoffTime = pickup.add(hours, 'hour').format('HH:mm:ss');
+            }
+
             reservations.push({
                 reservation_charter_order: r.reservation_charter_order || r.reservation_id,
                 reservation_passenger_name: r.reservation_passenger_name || '',
                 reservation_time: r.reservation_time || '',
                 reservation_pickup_location: r.reservation_pickup_location || '',
-                dropoff_time: '', // Not in data
+                dropoff_time: dropoffTime,
                 reservation_dropoff_location: r.reservation_dropoff_location || '',
                 reservation_passengers: r.reservation_passengers || '',
                 reservation_hour: r.reservation_hour || '',

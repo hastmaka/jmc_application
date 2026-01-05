@@ -3,6 +3,7 @@ const router = express.Router();
 import {_reservation} from './_reservation.ts';
 
 router.get('/', _reservation.listReservation);
+router.get('/summary', _reservation.listReservationSummary);
 router.get('/check-availability', _reservation.checkAvailability);
 // router.get('/backfill', _reservation.backfillReservation);
 router.get('/:reservation_id', _reservation.listReservationByPk);

@@ -38,21 +38,13 @@ export default function (sequelize: Sequelize): ModelStatic<any> {
             }
         },
 
-        phone_phone_id: {
-            type: DataTypes.INTEGER,
+        employee_phone: {
+            type: DataTypes.STRING(20),
             allowNull: true,
-            references: {
-                model: 'phones',
-                key: 'phone_id'
-            }
         },
-        address_address_id: {
-            type: DataTypes.INTEGER,
+        employee_address: {
+            type: DataTypes.STRING(255),
             allowNull: true,
-            references: {
-                model: 'addresses',
-                key: 'address_id'
-            }
         },
         user_user_id: {
             type: DataTypes.INTEGER,
@@ -63,10 +55,6 @@ export default function (sequelize: Sequelize): ModelStatic<any> {
                 key: 'user_id'
             }
         },
-
-        // temp fields
-        // employee_phone: DataTypes.STRING(10),
-        // employee_address: DataTypes.STRING(255),
 
         created_at: {
             type: 'TIMESTAMP',
@@ -98,19 +86,7 @@ export default function (sequelize: Sequelize): ModelStatic<any> {
     });
 
     (Model as ModelStatic<any> & { associate?: (models: any) => void }).associate =
-        function ({ address, phone, user, document, asset_option }: any) {
-            // Model.belongsTo(address, {
-            //     as: 'employee_address',
-            //     foreignKey: 'address_address_id',
-            //     onDelete: "NO ACTION",
-            //     onUpdate: "NO ACTION"
-            // });
-            // Model.belongsTo(phone, {
-            //     as: 'employee_phone',
-            //     foreignKey: 'phone_phone_id',
-            //     onDelete: "NO ACTION",
-            //     onUpdate: "NO ACTION"
-            // });
+        function ({ user, document, asset_option }: any) {
             Model.belongsTo(user, {
                 as: 'user',
                 foreignKey: 'user_user_id',

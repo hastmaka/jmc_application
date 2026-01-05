@@ -58,7 +58,8 @@ async function attachAllReservationsToVehicles(inspection: any) {
             car_car_id: { [Op.in]: carIds },
             reservation_date: inspectionDate,
             reservation_status: 7
-        }
+        },
+        order: [['reservation_time', 'ASC']]
     });
 
     // Group reservations by car_car_id
@@ -97,7 +98,7 @@ export const _inspection = {
                         model: models.car, as: 'vehicle_car', required: false
                     }]
                 }],
-                order: [['inspection_date', 'DESC']]
+                order: [['inspection_date', 'ASC']]
             }
 
             const inspection = await Inspection.listInspection('findAndCountAll', query);
@@ -187,11 +188,9 @@ export const _inspection = {
                         employeeId: inspectionData.employee_employee_id,
                         date: inspectionData.inspection_date
                     });
-                    return res.status(409).json({
-                        success: false,
-                        existingId: existing.get('inspection_id'),
-                        message: 'An inspection already exists for this driver on this date.'
-                    });
+                    const error: any = new Error('An inspection already exists for this driver on this date.');
+                    error.existingId = existing.get('inspection_id');
+                    return handleError(res, error, 409);
                 }
             }
 

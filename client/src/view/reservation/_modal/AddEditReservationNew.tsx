@@ -11,7 +11,7 @@ import EzButton from "@/ezMantine/button/EzButton.tsx";
 import EzText from "@/ezMantine/text/EzText.tsx";
 import EzScroll from "@/ezMantine/scroll/EzScroll.tsx";
 import EzLoader from "@/ezMantine/loader/EzLoader.tsx";
-import {airlines} from "@/static";
+import {airlines, mostKnownPlacesInVegas} from "@/static";
 import u from "@/util";
 import _ from "lodash";
 
@@ -105,7 +105,8 @@ export default function AddEditReservation({
                     url: 'v1/car/asset',
                     iterator: {label: 'car_plate', value: 'car_id'},
                 },
-                inputProps: {w: 200}
+                inputProps: {w: 200},
+                required: true,
             },
             {
                 name: "select_source",
@@ -138,13 +139,13 @@ export default function AddEditReservation({
             {
                 name: "reservation_pickup_location",
                 label: "Pickup Location",
-                // type: "select",
-                // fieldProps: {
-                //     fromDb: false,
-                //     data: [...airlines, ...mostKnownPlacesInVegas],
-                //     iterator: {label: 'label', value: 'value'},
-                //     freeMode: true
-                // },
+                type: "select",
+                fieldProps: {
+                    fromDb: false,
+                    data: mostKnownPlacesInVegas,
+                    iterator: {label: 'label', value: 'value'},
+                    freeMode: true
+                },
                 required: true
             },
             {
@@ -166,13 +167,13 @@ export default function AddEditReservation({
             {
                 name: "reservation_dropoff_location",
                 label: "Dropoff Location",
-                // type: "select",
-                // fieldProps: {
-                //     fromDb: false,
-                //     data: [...airlines, ...mostKnownPlacesInVegas],
-                //     iterator: {label: 'label', value: 'value'},
-                //     freeMode: true
-                // },
+                type: "select",
+                fieldProps: {
+                    fromDb: false,
+                    data: mostKnownPlacesInVegas,
+                    iterator: {label: 'label', value: 'value'},
+                    freeMode: true
+                },
                 required: true
             },
         ])

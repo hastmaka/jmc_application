@@ -14,6 +14,9 @@ function Dashboard() {
         <Stack style={{width: "100%", height: "100%", maxWidth: "1600px", margin: "0 auto"}}>
             <DashboardToolBar/>
             <Stack>
+                <Suspense fallback={<EzLoader h={400}/>}>
+                    <Driver/>
+                </Suspense>
                 <Flex gap={16}>
                     <Suspense fallback={<EzLoader h={400}/>}>
                         <Fuel/>
@@ -22,9 +25,6 @@ function Dashboard() {
                         <Miles/>
                     </Suspense>
                 </Flex>
-                <Suspense fallback={<EzLoader h={400}/>}>
-                    <Driver/>
-                </Suspense>
             </Stack>
         </Stack>
     );

@@ -1,0 +1,136 @@
+.container {
+  width: 900px;
+  padding: 20px;
+  background-color: white;
+  font-family: Arial, sans-serif;
+  color: #000;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #000;
+}
+
+.section {
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: bold;
+  background-color: #f0f0f0;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  border: 1px solid #999;
+  color: #000;
+}
+
+.statsGrid {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.statCard {
+  flex: 1;
+  border: 1px solid #999;
+  padding: 10px;
+  text-align: center;
+}
+
+.statLabel {
+  font-size: 10px;
+  color: #000;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.statValue {
+  font-size: 20px;
+  font-weight: bold;
+  color: #000;
+}
+
+.statSubValue {
+  font-size: 11px;
+  color: #000;
+}
+
+.completed { color: #087f5b; }
+.confirmed { color: #1864ab; }
+.pending { color: #e67700; }
+.cancelled { color: #c92a2a; }
+
+.table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 11px;
+  color: #000;
+
+  td, th {
+    border: 1px solid #999;
+    padding: 6px 8px;
+    text-align: center;
+    color: #000;
+  }
+
+  th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+  }
+}
+
+.left {
+  text-align: left !important;
+}
+
+.right {
+  text-align: right !important;
+}
+
+.totalRow {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+.earningsGrid {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  border: 1px solid #999;
+}
+
+.earningItem {
+  text-align: center;
+}
+
+.earningLabel {
+  font-size: 10px;
+  color: #000;
+  text-transform: uppercase;
+}
+
+.earningValue {
+  font-size: 18px;
+  font-weight: bold;
+  color: #000;
+}
+
+.footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 10px;
+  color: #000;
+}

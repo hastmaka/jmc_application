@@ -38,9 +38,11 @@ export default function EmployeeDetailsModal({
     const avatar = employeeDetailData?.employee_document.find((doc: any) => doc.document_type === 67) || {}
 
     const data = {
+        'Role': employeeDetailData?.select_role?.label,
         'Full Name': `${employeeDetailData?.employee_first_name} ${employeeDetailData?.employee_middle_name} ${employeeDetailData?.employee_last_name}`,
         'Email': employeeDetailData?.employee_email,
-        'Role': employeeDetailData?.select_role?.label,
+        'Address': employeeDetailData?.employee_address,
+        'Phone': employeeDetailData?.employee_phone,
     }
     const data2 = {
         'Certification': employeeDetailData?.employee_certification,

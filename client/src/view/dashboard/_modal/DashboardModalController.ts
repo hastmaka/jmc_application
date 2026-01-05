@@ -25,16 +25,30 @@ import {handleInput as baseHandleInput} from "@/signals/signalController/methods
  * - Computed/Getters: getVehicleTotals, getCombinedReservations, getReservationTotals
  */
 
+function parseIntOrNull(val: any): number | null {
+    if (val == null || val === '') return null;
+    const num = parseInt(val);
+    return isNaN(num) ? null : num;
+}
+
+function parseFloatOrNull(val: any): number | null {
+    if (val == null || val === '') return null;
+    const num = parseFloat(val);
+    return isNaN(num) ? null : num;
+}
+
 function buildVehiclePayload(v: any) {
     if (!v) return null;
     // select_car is an object {label, value} from EzSelect
     const carId = v.select_car?.value ?? null;
     return {
         car_car_id: carId,
-        inspection_vehicle_odometer_start: v.inspection_vehicle_odometer_start ? parseInt(v.inspection_vehicle_odometer_start) : null,
-        inspection_vehicle_odometer_end: v.inspection_vehicle_odometer_end ? parseInt(v.inspection_vehicle_odometer_end) : null,
-        inspection_vehicle_gas_gallons: v.inspection_vehicle_gas_gallons ? parseInt(v.inspection_vehicle_gas_gallons) : null,
-        inspection_vehicle_gas_cost: v.inspection_vehicle_gas_cost ? Math.round(parseFloat(v.inspection_vehicle_gas_cost) * 100) : null,
+        inspection_vehicle_odometer_start: parseIntOrNull(v.inspection_vehicle_odometer_start),
+        inspection_vehicle_odometer_end: parseIntOrNull(v.inspection_vehicle_odometer_end),
+        inspection_vehicle_gas_gallons: parseIntOrNull(v.inspection_vehicle_gas_gallons),
+        inspection_vehicle_gas_cost: parseFloatOrNull(v.inspection_vehicle_gas_cost) != null
+            ? Math.round(parseFloatOrNull(v.inspection_vehicle_gas_cost)! * 100)
+            : null,
         inspection_vehicle_reservation_ids: v.inspection_vehicle_reservation_ids?.length > 0 ? v.inspection_vehicle_reservation_ids : null,
     };
 }
@@ -179,6 +193,17 @@ export const DashboardModalController: SignalType<any, any> =
 
         /** Adds a new empty vehicle entry */
         addVehicle: function(this: any) {
+            const newIndex = this.vehicleCount;
+            this.formData[`vehicle${newIndex}`] = {
+                select_car: null,
+                inspection_vehicle_odometer_start: '',
+                inspection_vehicle_odometer_end: '',
+                inspection_vehicle_gas_gallons: '',
+                inspection_vehicle_gas_cost: '',
+                inspection_vehicle_reservation_ids: [],
+                reservationData: [],
+                reservationLoading: false,
+            };
             this.vehicleCount += 1;
         },
         /** Removes a vehicle by index (minimum 1 vehicle required) */

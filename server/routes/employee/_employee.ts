@@ -9,13 +9,7 @@ export const _employee = {
     listEmployee: async (req: Request, res: Response) => {
         try {
             const query = {
-                include: [
-                //     {
-                //     model: models.phone, as: 'employee_phone', required: false
-                // }, {
-                //     model: models.address, as: 'employee_address', required: false
-                // },
-                    {
+                include: [{
                     model: models.user, as: 'user', required: false
                 }, {
                     model: models.document, as: 'employee_document', required: false
@@ -41,18 +35,12 @@ export const _employee = {
 
         try {
             const query = {
-                include: [
-                //     {
-                //     model: models.phone, as: 'employee_phone', required: false
-                // }, {
-                //     model: models.address, as: 'employee_address', required: false
-                // },
-                    {
+                include: [{
                     model: models.user, as: 'user', required: false
                 }, {
                     model: models.document, as: 'employee_document', required: false,
                     include: [{
-                        model: models.asset_option, as: 'document_type_option',required: false,
+                        model: models.asset_option, as: 'document_type_option', required: false,
                     }]
                 }, {
                     model: models.asset_option, as: 'employee_role_option', required: false

@@ -36,19 +36,11 @@ export default class EmployeeModel extends EzModel {
                         value: row.employee_role
                     };
                 }
-            },
-            //     {
-            //     name: 'phone_phone_id', type: 'int'
-            // }, {
-            //     name: 'address_address_id', type: 'int'
-            // },
-                {
-                    name: 'employee_phone', type: 'string'
-                },
-                {
-                    name: 'employee_address', type: 'string'
-                },
-                {
+            }, {
+                name: 'employee_phone', type: 'phone'
+            }, {
+                name: 'employee_address', type: 'string'
+            }, {
                 name: 'user_user_id', type: 'int'
             }, {
                 name: 'employee_document', type: 'array'

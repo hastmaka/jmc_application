@@ -19,6 +19,7 @@ export function handleError(res: Response, error: any, code: number = 400): void
         status: code,
         message,
         field: error?.field || null,
+        existingId: error?.existingId || null,
         success: false
     });
 }

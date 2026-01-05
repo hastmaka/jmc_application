@@ -32,7 +32,7 @@ export const moduleDefinitions: ModuleDefinition[] = [
         label: 'Download',
         icon: IconDownload,
         component: lazy(() => import('@/view/download/Download.tsx')),
-        permission: 1,
+        permission: 20,
     },
     // {
     //     path: 'admin',

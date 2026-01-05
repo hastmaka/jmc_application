@@ -53,7 +53,8 @@ export default function ReservationDetails({reservationId}: { reservationId: num
         ['Dropoff Location']: reservationDetailData.reservation_dropoff_location,
         ...itineraryEntries,
         Pax: reservationDetailData.reservation_passengers,
-        ['Real Value']: u.formatMoney(reservationDetailData.reservation_real_value),
+        Hours: hour === 1 ? `${hour} hr` : `${hour} hrs`,
+        Price: u.formatMoney(reservationDetailData.reservation_real_value),
     }
 
     const data1 = {
@@ -62,7 +63,7 @@ export default function ReservationDetails({reservationId}: { reservationId: num
         Source: reservationDetailData.select_source?.label,
         VEH: reservationDetailData.reservation_car,
         Status: reservationDetailData.reservation_status,
-        Hours: hour,
+        Hours: hour === 1 ? `${hour} hr` : `${hour} hrs`,
         Base: u.formatMoney(reservationDetailData.reservation_base),
         ['M&G']: u.formatMoney(reservationDetailData.reservation_m_and_g),
         ['Fuel Total']: u.formatMoney(fuelPlusHour),

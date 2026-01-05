@@ -10,6 +10,9 @@ import u from '@/util'
 import {ActionIconsToolTip} from "@/ezMantine/actionIconTooltip/ActionIconsToolTip.tsx";
 import {pdfGenerator} from "@/components/pdfUtilities/PdfGenerator.tsx";
 import {extractDriverReportData} from "@/view/dashboard/_pdf/extractDriverReportData.ts";
+// import TestPdf from "@/components/pdfUtilities/TestPdf.tsx";
+import DriverReport from "@/view/dashboard/_pdf/DriverReport.tsx";
+// import {extractDataFromRow} from "@/view/reservation/_modal/pdfExport/pdfUtil/extractDataFromRow.ts";
 
 const DriverReportModal = 
     lazy(() => import('../_modal/DriverReportModal.tsx'));
@@ -35,7 +38,6 @@ export default function DriverTable() {
             onClose: clearModalState
         });
     }
-
     function handleOpenDetailsModal(inspectionId: number) {
         const modalId = 'inspection-details-modal';
         window.openModal({
@@ -50,10 +52,34 @@ export default function DriverTable() {
             onClose: resetState
         });
     }
-    const head = ['Driver', 'Car', 'Reservations', 'Start', 'End', 'Date', 'Miles', 'Gas Cost', 'Total', 'Actions'];
 
+    async function handlePdfGenerator(row: any) {
+        return await window.toast.U({
+            id: {
+                title: "Creating PDF",
+                message: "Please wait",
+            },
+            update: {
+                success: 'PDF created successfully.',
+                error: 'PDF creation failed.',
+            },
+            cb: () => pdfGenerator(
+                'v1/inspection/' + row.inspection_id,
+                DriverReport,
+                extractDriverReportData,
+                false,
+                '',
+                'landscape'
+            )
+        });
+    }
+
+    const head = ['Driver', 'Car', 'Reservations', 'Start', 'End', 'Date', 'Miles', 'Gas Cost', 'Total', 'Actions'];
     const tdMap = [
-        'employee_name',
+        {
+            name: 'employee_name',
+            w: 220
+        },
         {
             name: 'car_name',
             render: (row: any) => {
@@ -107,7 +133,7 @@ export default function DriverTable() {
                     const end = parseInt(v.inspection_vehicle_odometer_end) || 0;
                     return sum + Math.max(0, end - start);
                 }, 0);
-                return totalMiles ? `${u.formatMoney(totalMiles, false)} mi` : '-';
+                return totalMiles ? `${u.formatMoney(totalMiles, false, false)} mi` : '-';
             }
         },
         {
@@ -158,11 +184,31 @@ export default function DriverTable() {
                         }, {
                             icon: (
                                 <IconFileTypePdf
-                                    onClick={() => pdfGenerator(
-                                        'v1/inspection/' + row.inspection_id,
-                                        EzLoader,
-                                        extractDriverReportData
-                                    )}
+                                    onClick={() => handlePdfGenerator(row)}
+                                    // onClick={() => pdfGenerator(
+                                    //     'v1/inspection/' + row.inspection_id,
+                                    //     DriverReport,
+                                    //     extractDriverReportData,
+                                    //     false,
+                                    //     '',
+                                    //     'landscape'
+                                    // )}
+                                    // onClick={() => {
+                                    //     window.openModal({
+                                    //         modalId: 'test-pdf',
+                                    //         title: 'Test PDF',
+                                    //         fullScreen: true,
+                                    //         children: (
+                                    //             <TestPdf
+                                    //                 url={'v1/inspection/' + row.inspection_id}
+                                    //                 extractor={extractDriverReportData}
+                                    //                 template={[DriverReport]}
+                                    //                 orientation='landscape'
+                                    //             />
+                                    //         ),
+                                    //         onClose: () => {}
+                                    //     })
+                                    // }}
                                 />
                             ),
                             tooltip: 'Driver Report'
@@ -174,10 +220,11 @@ export default function DriverTable() {
         }
     ];
 
-    if (inspectionLoading) return <EzLoader h={300}/>
+    if (inspectionLoading) return <EzLoader h={600}/>
 
     return (
         <EzTable
+            height={600}
             head={head}
             tdMap={tdMap}
             data={inspectionData || []}
